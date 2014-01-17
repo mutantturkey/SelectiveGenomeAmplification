@@ -1,8 +1,6 @@
 import sys
-from multiprocessing import Pool
 
-def above_melting_temperature(kmer_with_count):
-	kmer = kmer_with_count.split("\t")[0]
+def in_temp_range(kmer):
 
 	A = kmer.count('A')
 	C = kmer.count('C')
@@ -16,18 +14,13 @@ def above_melting_temperature(kmer_with_count):
 	else:
 		melt_temp = 64.9 + 41*(G+C-16.4)/(A+T+G+C)
 
-	if melt_temp < max_melting_temp:
-		return kmer_with_count
-	else:
-		return 0
+	return min_melting_temp < melt_temp < max_melting_temp
+
+min_melting_temp = float(sys.argv[1])
+max_melting_temp = float(sys.argv[2])
 
 
-lines = sys.stdin.readlines()
-max_melting_temp = float(sys.argv[1])
-
-p = Pool()
-output = p.map(above_melting_temperature, lines)
-
-for line in output:
-	if line != 0:
+output = []
+for line in sys.stdin:
+	if in_temp_range(line.split("\t")[0]):
 		sys.stdout.write(line)
