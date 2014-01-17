@@ -16,7 +16,11 @@ int main(int argc, char **argv){
 	unsigned long long cpy_size = 0; 
 
 	// get max argument length
-	int save_size = strlen(argv[1]);
+	if(argc < 2) { 
+		printf("please supply a string to search for in stdin\n");
+		exit("EXIT_FAILURE");
+		}
+	unsigned int save_size = strlen(argv[1]);
 
 	cpy = save_size - 1;
 	cpy_size = BUFSIZ - cpy;
