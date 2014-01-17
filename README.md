@@ -10,13 +10,16 @@ To use this you'll need:
  - bash or compliant shell.
  
  
+Setup:
+    git clone git@github.com:mutantturkey/SelectiveGenomeAmplification.gi
+    cdiSelectiveGenomeAmplification
+    make
 
 Example Usage:
 
     cd SelectiveGenomeAmplification;
     ./selectiveGenomeAmplification.sh PfalciparumGenome.fasta HumanGenome.fasta;
     less PfalciparumGenome.fasta_HumanGenome_final_mers
-   
 For user customizable variables:
 
     max_mer_distance=5000; max_select=6 min_mer_range=6 max_mer_range=12 \
