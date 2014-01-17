@@ -8,6 +8,8 @@
 : ${counts_directory=$PWD/counts}
 # temp directory 
 : ${tmp_directory=$PWD/tmp}
+# output directory 
+: ${tmp_directory=$PWD/outputs}
 # min/maximum kmer melting point
 : ${max_melting_temp=30}
 : ${min_melting_temp=0}
@@ -30,14 +32,21 @@ export max_mer_distance
 export max_melting_temp 
 export min_melting_temp 
 
-PATH=$PATH:`pwd`
+PATH=$PATH:$PWD
 
+# Make our counts directory
 if [ ! -d $counts_directory ]; then
 	mkdir $counts_directory
 fi
 
+# Make our temporary directory
 if [ ! -d $tmp_directory ]; then
 	mkdir $tmp_directory
+fi
+
+# Make our output directory
+if [ ! -d $output_directory ]; then
+	mkdir $output_directory
 fi
 
 foreground=$1
