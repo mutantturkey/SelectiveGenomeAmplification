@@ -3,6 +3,7 @@ CC = gcc
 CFLAGS = -O3 -s -mtune=native -Wall -DVERSION=$(VERSION) -Wextra
 SRC = src
 BIN = bin
+DEST = /usr/local/bin/
 
 all: output_dir $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone
 
@@ -19,5 +20,5 @@ clean:
 	rm -vf $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone
 
 install: all
-	install -c $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone SelectiveGenomeAmplification select_mers.py $(dest)
+	install -c $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone SelectiveGenomeAmplification select_mers.py $(DEST)
 
