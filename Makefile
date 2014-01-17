@@ -4,8 +4,10 @@ CFLAGS = -O3 -s -mtune=native -Wall -DVERSION=$(VERSION) -Wextra
 SRC = src
 BIN = bin
 
-all: $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone
+all: output_dir $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone
 
+output_dir: 
+	mkdir -p $(BIN)
 $(BIN)/strstream: $(SRC)/strstream.c
 	$(CC) $(SRC)/strstream.c -o $(BIN)/strstream $(CLIBS) $(CFLAGS)
 $(BIN)/strstreamone: $(SRC)/strstreamone.c
