@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # range of mers, min and max 
 : ${min_mer_range=6}
 : ${max_mer_range=10}

@@ -17,3 +17,7 @@ $(BIN)/melting_range: $(SRC)/melting_range.c
 
 clean:
 	rm -vf $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone
+
+install: all
+	install -c $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone SelectiveGenomeAmplification select_mers.py $(dest)
+
