@@ -9,7 +9,7 @@
 # temp directory 
 : ${tmp_directory=$PWD/tmp}
 # output directory 
-: ${tmp_directory=$PWD/outputs}
+: ${output_directory=$PWD/outputs}
 # min/maximum kmer melting point
 : ${max_melting_temp=30}
 : ${min_melting_temp=0}
