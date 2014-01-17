@@ -2,24 +2,37 @@
 # range of mers, min and max 
 : ${min_mer_range=6}
 : ${max_mer_range=10}
+# max mer distance, the distance between two mers in our selected outputs
+: ${max_mer_distance=5000}
 # directory to store our counts and sorted counts
 : ${counts_directory=$PWD/counts}
 # temp directory 
 : ${tmp_directory=$PWD/tmp}
-# maximum kmer melting point
-: ${max_melting_temp=20}
+# min/maximum kmer melting point
+: ${max_melting_temp=18}
+: ${min_melting_temp=0}
 # minimum mer count
 # ! you can supply either a percentage like this .5
 # ! or you can supply a raw number (100)
 : ${min_mer_count=1000}
 # maximum mers to pick
 : ${max_select=15}
+# mers to specifically IGNORE, space delimited
+: ${ignore_mers=''}
 
+export ignore_mers
 export min_mer_range
 export max_mer_range
-export max_select
-export min_mer_count
 
+export max_select
+
+export min_mer_count
+export max_mer_distance
+
+export max_melting_temp 
+export min_melting_temp 
+
+PATH=$PATH:`pwd`
 
 if [ ! -d $counts_directory ]; then
 	mkdir $counts_directory
@@ -77,10 +90,27 @@ bg_counts=$counts_directory/$(basename $background)-counts
 fg_tmp=$tmp_directory/$(basename $foreground)
 bg_tmp=$tmp_directory/$(basename $background)
 
+# remove ignored mers
+if [ "$ignore_mers" ]; then
+	echo "removing ignored mers: " + $ignore_mers
+	for mer in $ignore_mers; do
+		sed -i '/^'$mer'\t/d' $fg_counts
+		sed -i '/^'$mer'\t/d' $bg_counts
+	done
+fi
+
+
 echo "checking if mers are below melting temperature in the foreground"
-
 rm $fg_counts-fg-non-melting
+melting_range $min_melting_temp $max_melting_temp < $fg_counts > $fg_counts-fg-non-melting &
 
-python below_melting_temperature.py $max_melting_temp < $fg_counts > $fg_counts-fg-non-melting
+echo "checking if mers are below melting temperature in the background"
+rm $bg_counts-bg-non-melting
+melting_range $min_melting_temp $max_melting_temp < $bg_counts > $bg_counts-bg-non-melting
 
-python ./select_mers.py $fg_counts-fg-non-melting $fg_tmp $bg_counts $bg_tmp # > $(basename $foreground)_$(basename $background)_final_mers
+# echo "scoring mer selectivity"
+# python ./mer_selectivity.py $fg_counts-fg-non-melting $bg_counts-bg-non-melting
+
+echo ""
+echo "scoring mers"
+python ./select_mers.py $fg_counts-fg-non-melting $fg_tmp $bg_counts-bg-non-melting $bg_tmp # > $(basename $foreground)_$(basename $background)_final_mers 
