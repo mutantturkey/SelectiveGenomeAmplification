@@ -9,12 +9,10 @@
 # temp directory 
 : ${tmp_directory=$PWD/tmp}
 # min/maximum kmer melting point
-: ${max_melting_temp=18}
+: ${max_melting_temp=30}
 : ${min_melting_temp=0}
 # minimum mer count
-# ! you can supply either a percentage like this .5
-# ! or you can supply a raw number (100)
-: ${min_mer_count=1000}
+: ${min_mer_count=0}
 # maximum mers to pick
 : ${max_select=15}
 # mers to specifically IGNORE, space delimited
