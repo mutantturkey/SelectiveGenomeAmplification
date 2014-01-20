@@ -1,0 +1,128 @@
+#! /usr/bin/python
+# output directory 
+# : ${output_directory=`basename $foreground`_`basename $background`}
+# directory to store our counts and sorted counts
+# : ${counts_directory=$output_directory/.counts}
+# temp directory 
+# : ${tmp_directory=$output_directory/.tmp}
+# range of mers, min and max 
+# : ${min_mer_range=6}
+#: ${max_mer_range=10}
+# max mer distance, the distance between two mers in our selected outputs
+#: ${max_mer_distance=5000}
+# min/maximum kmer meling point
+# : ${max_melting_temp=30}
+# : ${min_melting_temp=0}
+# minimum mer count
+# : ${min_mer_count=0}
+# maximum mers to pick
+# : ${max_select=15}
+# mers to specifically IGNORE, space delimited
+# ${ignore_mers=''}
+
+# ${foreground=''}
+# ${background=''}
+
+foreground = ""
+background = ""
+
+yes_no = {'Y': True, 'y': True,'n': False, 'N': False, 'yes': True, 'no': False, '': '' }
+
+variables = {}
+
+questions = [
+	{ 'question' : "Where would you like your output directory to be?", 
+	  'default_str': 'current directory',
+	  'variable': 'output_directory'
+	 },
+	{'question': "Where would you like to temporary files to be stored?",
+	 'default_str': '$output_directory/.tmp',
+	 'variable': "temp_directory" },
+	{ 'question': 'What is the maximum mer size you would like to pick?',
+	  'default_str': '12',
+	  'variable': 'max_mer_range' },
+	{ 'question': 'What is the minimum mer size you would like to pick?',
+	  'default_str': '6',
+	  'variable': 'min_mer_range' },
+	{ 'question': 'What is the minimum mer count you want to have for your selected mer?',
+	  'default_str': 'None',
+	  'variable': 'min_mer_count' },
+	{ 'question': 'What is the maximum number of mers you want to search and select?',
+	  'default_str': '15',
+	  'variable': 'max_select' },
+	{'question': 'Do you want to specifically ignore any mers? (space seperated)',
+	 'default_str': "None",
+	 'variable': 'ignore_mers' }
+
+]
+
+def bool_ask(ask_string, default):
+	ans = ""
+
+	ask_string = ask_string + " (Y/N/Default=" + str(default) + ")" + ": "
+
+	ans = raw_input(ask_string)
+	while ans not in yes_no.keys():
+		ans = raw_input(ask_string)
+	if ans is '':
+		ans = default
+
+	return yes_no[ans]
+
+def ask(question_dict):
+	question = question_dict['question']
+	default_str = question_dict['default_str']
+
+	ask_string = question + " (Y/N/Default=" + str(default_str) + ")" + ": "
+
+	ans = raw_input(ask_string)
+	return ans 
+
+def variables_to_string(variables):
+	ret = ""
+	for variable in variables:
+		ret = ret + variable + "=\"" + variables[variable] + "\" "
+	ret = ret + "foreground=\"" + foreground + "\" "
+	ret = ret + "background=\"" + foreground + "\" "
+	return ret
+
+def run(variables_as_a_string):
+
+	import subprocess
+	subprocess.check_call(variables_as_a_string + " " + "SelectGenomeAmplification " + foreground + " " + background, shell=True)
+
+if(bool_ask("would you like to input all your variables at once?", "n")):
+	variables = raw_input("Please paste in your variables (space delimited):")
+	print variables
+	run(variables)
+else:
+	for q in questions:
+		if 'bool' in q:
+			res = ask_bool(q['question'], q['default'])
+		else:
+			res = ask(q)
+
+		variables[q['variable']] = res 
+
+	foreground = raw_input("Input the path to your foreground file:")
+	background = raw_input("Input the path to your background file:")
+
+	if(bool_ask("Would you like to output your inserted variables to a string you can later paste?", "y")):
+		print variables_to_string(variables)
+
+	if(bool_ask("Run SelectiveGenomeAmplification?", "y")):
+		run(variables_to_string(variables))
+
+# SelectGenomeAmplification
+
+# export ignore_mers
+# export min_mer_range
+# export max_mer_range
+
+# export max_select
+
+# export min_mer_count
+# export max_mer_distance
+
+# export max_melting_temp 
+#export min_melting_temp 
