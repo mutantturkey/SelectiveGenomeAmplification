@@ -1,16 +1,38 @@
 #!/usr/bin/env bash
+
+if [ -z "$foreground" ] && [ -z "$background" ]; then 
+	if (( $# < 2 )); then  
+		echo "please supply two genomes, foreground and background"
+		exit 1
+	fi;
+
+	: ${foreground=$1}
+	: ${background=$2}
+fi
+
+
+if [[ ! -f $foreground ]]; then
+	echo "Could not open $foreground"
+	exit 1
+fi
+
+if [[ ! -f $background ]]; then
+	echo "Could not open $background"
+	exit 1
+fi
+
+# output directory 
+: ${output_directory=`basename $foreground`_`basename $background`}
+# temp directory 
+: ${tmp_directory=$output_directory/.tmp}
+# directory to store our counts and sorted counts
+: ${counts_directory=$tmp_directory}
 # range of mers, min and max 
 : ${min_mer_range=6}
 : ${max_mer_range=10}
 # max mer distance, the distance between two mers in our selected outputs
 : ${max_mer_distance=5000}
-# directory to store our counts and sorted counts
-: ${counts_directory=$PWD/counts}
-# temp directory 
-: ${tmp_directory=$PWD/tmp}
-# output directory 
-: ${output_directory=$PWD/outputs}
-# min/maximum kmer melting point
+# min/maximum kmer meling point
 : ${max_melting_temp=30}
 : ${min_melting_temp=0}
 # minimum mer count
@@ -32,7 +54,11 @@ export max_mer_distance
 export max_melting_temp 
 export min_melting_temp 
 
-PATH=$PATH:$PWD
+
+# Make our output directory
+if [ ! -d $output_directory ]; then
+	mkdir $output_directory
+fi
 
 # Make our counts directory
 if [ ! -d $counts_directory ]; then
@@ -44,23 +70,7 @@ if [ ! -d $tmp_directory ]; then
 	mkdir $tmp_directory
 fi
 
-# Make our output directory
-if [ ! -d $output_directory ]; then
-	mkdir $output_directory
-fi
 
-foreground=$1
-background=$2
-
-if [[ ! -f $foreground ]]; then
-	echo "Could not open $foreground."
-	exit 1
-fi
-
-if [[ ! -f $background ]]; then
-	echo "Could not open $background."
-	exit 1
-fi
 
 for fasta_file in $foreground $background; do
 
