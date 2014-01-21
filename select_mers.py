@@ -1,7 +1,5 @@
+#!/usr/bin/env python
 import sys
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot
 import os
 
 from multiprocessing import Pool
