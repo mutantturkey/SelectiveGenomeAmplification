@@ -20,5 +20,5 @@ clean:
 	rm -vf $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone
 
 install: all
-	install -c $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone SelectiveGenomeAmplification select_mers.py $(DEST)
+	install -c $(BIN)/strstream $(BIN)/melting_range $(BIN)/strstreamone SelectiveGenomeAmplification select_mers.py score_mers.py $(DEST)
 
