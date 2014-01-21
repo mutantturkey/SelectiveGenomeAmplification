@@ -130,4 +130,4 @@ melting_range $min_melting_temp $max_melting_temp < $bg_counts > $bg_counts-bg-n
 
 echo ""
 echo "scoring mers"
-select_mers.py $fg_counts-fg-non-melting $fg_tmp $bg_counts-bg-non-melting $bg_tmp # > $(basename $foreground)_$(basename $background)_final_mers 
+select_mers.py $fg_counts-fg-non-melting $fg_tmp $bg_counts-bg-non-melting $bg_tmp $output_directory/output_`date +%s`

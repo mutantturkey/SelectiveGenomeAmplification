@@ -33,6 +33,10 @@ max_select       = int(os.environ.get("max_select", 15));
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000));
 
 
+def populate_locations(input_fn, mers, mer):
+	''' Run the strstreamone command, and parse in the integers that are output
+			by the command, and add it to mers[mer].pts 
+	'''
 
 	cmd = 'strstreamone ' + mer + " < " + input_fn
 	
@@ -40,9 +44,6 @@ max_mer_distance = int(os.environ.get("max_mer_distance", 5000));
 	for line in strstream.stdout:
 		mers[mer].pts.append(int(line))
 
-
-
-	return None
 
 def score_mers(selected):
 	from itertools  import combinations
@@ -52,32 +53,28 @@ def score_mers(selected):
 
 	p = Pool()
 
+	fh = open(output_file, 'w');
+	fh.write("scores:\n");
 	for select_n in range(1, max_select+1):
-		t = time.time()
 		print "scoring size ", select_n
-		scores_it = []
-	 	scores_it = p.imap_unordered(score, combinations(selected, select_n))
-		scores_it = filter(lambda x: x is not None, scores_it)
-	 	scores = scores + scores_it
-	 	print time.time() - t
-
-	 	
-
-
-
+		scores_it = p.imap_unordered(score, combinations(selected, select_n))
+		for score_res in scores_it:
+			fh.write(str(score_res) + "\n");
 	return scores
+
 
 def score(combination):
 # input is a string of mers like 
 # ['ACCAA', 'ACCCGA', 'ACGTATA']
 
+	ret = [combination]
 
 	for mer in combination:
 		for other_mer in combination:
 			if not mer == other_mer:
 				if mer in other_mer:
-					return None
-
+					ret.append("duplicates")
+					return ret 
 
 	fg_pts = []
 	fg_dist = []
@@ -101,7 +98,8 @@ def score(combination):
 	bg_dist = np.array([abs(bg_pts[i] - bg_pts[i-1]) for i in range(1, len(bg_pts))])
 
 	if any(dist > max_mer_distance for dist in fg_dist):
-		return None
+		ret.append("dist")
+		return ret 
 
 	nb_primers = len(combination)
 	fg_mean_dist =  np.mean(fg_dist)
@@ -112,14 +110,19 @@ def score(combination):
 	# this is our equation
 	score = (nb_primers * fg_mean_dist * fg_variance_dist) / ((bg_mean_dist * bg_variance_dist) + .000001)
 
-	return (combination, score)
-				
+	ret.append(score)
+	ret.append(fg_mean_dist)
+	ret.append(fg_variance_dist)
+	ret.append(bg_mean_dist)
+	ret.append(bg_variance_dist)
+
+	return ret
 
 
 # select mers based on our 'selectivity' measure. (count in fg) / (count in bg)
 def select_mers(fg_mers, bg_mers, select_nb):
 
-	mers = [] # contains mer strings
+	mers   = [] # contains mer strings
 	fg_arr = [] # contains fg counts
 	bg_arr = [] # contains bg counts
 
@@ -132,7 +135,7 @@ def select_mers(fg_mers, bg_mers, select_nb):
 	fg_arr = np.array(fg_arr, dtype='f');
 	bg_arr = np.array(bg_arr, dtype='f');
 
-	selectivity = fg_arr - bg_arr
+	selectivity = fg_arr / bg_arr
 
 	arr = [(mers[i], fg_arr[i], bg_arr[i], selectivity[i]) for i in range(len(mers))]
 
@@ -147,9 +150,11 @@ def select_mers(fg_mers, bg_mers, select_nb):
 	return arr
 
 def pop_fg(mer):
+  ''' helper for map function '''
 	populate_locations(fg_fasta_fn, fg_mers, mer)
 
 def pop_bg(mer):
+  ''' helper for map function '''
 	populate_locations(bg_fasta_fn, bg_mers, mer)
 
 def main():
@@ -199,10 +204,11 @@ def main():
 		selected = fg_mers.keys()
 	else:
 		selected = select_mers(fg_mers, bg_mers, max_select)
-		selected =	selected[-50:] 
+		selected =	selected[-25:] 
+		print "searching through combinations of"
 		print selected
 
-	pdb.set_trace()
+#	pdb.set_trace()
 
 	# print "selected the top ", max_select, " mers"
 	# print "selected:", ", ".join(selected)
@@ -213,22 +219,13 @@ def main():
 
 	map(pop_fg, selected)
 	map(pop_bg, selected)
-	pdb.set_trace()
 
 	scores = score_mers(selected)
-	pdb.set_trace()
 
 	print "fg_genome_length", fg_genome_length
 	print "bg_genome_length", bg_genome_length
 	
 
-	sys.stdout.write("scores:\n");
-	for score in scores:
-		if score is not "Distance":
-			sys.stdout.write(", ".join(list(score[0])) + "\t")
-			sys.stdout.write(str(score[1]) + "\t")
-			# sys.stdsys.stdout.write("\t".join(score.dist_arr));
-			sys.stdout.write("\n");
 
 
 if __name__ == "__main__":
