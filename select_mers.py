@@ -150,11 +150,11 @@ def select_mers(fg_mers, bg_mers, select_nb):
 	return arr
 
 def pop_fg(mer):
-  ''' helper for map function '''
+	''' helper for map function '''
 	populate_locations(fg_fasta_fn, fg_mers, mer)
 
 def pop_bg(mer):
-  ''' helper for map function '''
+	''' helper for map function '''
 	populate_locations(bg_fasta_fn, bg_mers, mer)
 
 def main():
