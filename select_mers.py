@@ -56,10 +56,12 @@ def score_mers(selected):
 	fh = open(output_file, 'w');
 	fh.write("scores:\n");
 	for select_n in range(1, max_select+1):
-		print "scoring size ", select_n
+		print "scoring size ", select_n,
+		t = time.time()
 		scores_it = p.imap_unordered(score, combinations(selected, select_n))
 		for score_res in scores_it:
 			fh.write(str(score_res) + "\n");
+	 print "size ", select_n, "took:", t - time.time()	
 	return scores
 
 
@@ -94,11 +96,20 @@ def score(combination):
 	# bg_pts = list(set(bg_pts))
 
 	#	distances
+	min_mer_distance = max(len(i) for i in combination)
 	fg_dist = np.array([abs(fg_pts[i] - fg_pts[i-1]) for i in range(1, len(fg_pts))])
 	bg_dist = np.array([abs(bg_pts[i] - bg_pts[i-1]) for i in range(1, len(bg_pts))])
 
+  # return without calculating scores if any objects are higher than our max distance
 	if any(dist > max_mer_distance for dist in fg_dist):
-		ret.append("dist")
+		ret.append("max")
+		ret.append(max(fg_dist))
+		return ret 
+
+	# return without calculating scores if any mers are closer than the length of our longest mer in the combination
+	if any(dist < min_mer_distance for dist in fg_dist):
+		ret.append("min")
+		ret.append(min(fg_dist))
 		return ret 
 
 	nb_primers = len(combination)
@@ -204,7 +215,7 @@ def main():
 		selected = fg_mers.keys()
 	else:
 		selected = select_mers(fg_mers, bg_mers, max_select)
-		selected =	selected[-25:] 
+		selected =	selected[-100:] 
 		print "searching through combinations of"
 		print selected
 
@@ -224,6 +235,7 @@ def main():
 
 	print "fg_genome_length", fg_genome_length
 	print "bg_genome_length", bg_genome_length
+	print "output_file:", output_file
 	
 
 
