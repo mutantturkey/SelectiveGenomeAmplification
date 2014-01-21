@@ -10,27 +10,27 @@ import pdb
 fg_mers = {}
 bg_mers = {}
 
-fg_count_fn =  sys.argv[1]
-fg_fasta_fn =  sys.argv[2]
-
-bg_count_fn =  sys.argv[3]
-bg_fasta_fn =  sys.argv[4]
+if(len(sys.argv) != 5):
+	fg_count_fn =  sys.argv[1]
+	fg_fasta_fn =  sys.argv[2]
+	bg_count_fn =  sys.argv[3]
+	bg_fasta_fn =  sys.argv[4]
+	output_file =  sys.argv[5]
+else:
+	print "please specify your inputs"
+	print "ex: select_mers.py fg_counts_file fg_fasta_file bg_counts_file bg_fasta_file output_file"
+	exit()
 
 # empty class to fill up mer information with
 class Mer:
 	pass
 
-class Score:
-	pass
-
 # import our variables
-min_mer_range = int(os.getenv("min_mer_range"));
-max_mer_range = int(os.getenv("max_mer_range"));
-min_mer_count = int(os.getenv("min_mer_count"));
-max_select    = int(os.getenv("max_select"));
-max_mer_distance = int(os.getenv("max_mer_distance"));
-
-def populate_locations(input_fn, mers, mer):
+min_mer_range    = int(os.environ.get("min_mer_range", 6));
+max_mer_range    = int(os.environ.get("max_mer_range", 10));
+min_mer_count    = int(os.environ.get("min_mer_count", 0));
+max_select       = int(os.environ.get("max_select", 15));
+max_mer_distance = int(os.environ.get("max_mer_distance", 5000));
 
 
 
