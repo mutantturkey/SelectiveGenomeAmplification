@@ -33,13 +33,13 @@ def select_mers(fg_mers, bg_mers):
 	# populate our bg_arr and fg_arr as well as our mer arr.
 	for mer in fg_mers.keys():
 		mers.append(mer);
-		bg_arr.append(bg_mers[mer] + 1);
+		bg_arr.append(bg_mers.get(mer, 1));
 		fg_arr.append(fg_mers[mer]);
 
 	fg_arr = np.array(fg_arr, dtype='f');
 	bg_arr = np.array(bg_arr, dtype='f');
 
-	selectivity = (fg_arr/fg_genome_length) / (bg_arr/bg_genome_length)
+	selectivity = (fg_arr / bg_arr)
 
 	arr = [(mers[i], fg_arr[i], bg_arr[i], selectivity[i]) for i in range(len(mers))]
 
@@ -55,40 +55,29 @@ def select_mers(fg_mers, bg_mers):
 
 def main():
 
-
 	fg_count_fh = open(fg_count_fn, "r")
 	bg_count_fh = open(bg_count_fn, "r")
 	
 	# copy in our fg_mers and counts
-	print "populating our mers dictionary"
 	for mers,fh in [(fg_mers, fg_count_fh), (bg_mers, bg_count_fh)]:
 		for line in fh:
 			(mer, count) = line.split()
 			mers[mer] = int(count)
 	
 	if min_mer_count >= 1:
-		print "removing that are less frequent than: ", min_mer_count
 		for mer in fg_mers.keys():
 			if(fg_mers[mer] < min_mer_count):
 				del fg_mers[mer]
 				if mer in bg_mers:
 					del bg_mers[mer]
 	
-	print "removing useless mers from the background"
 	for mer in bg_mers.keys():
 		if mer not in fg_mers:
 			del bg_mers[mer]
 
-	print "adding empty mers to the background"
-	for mer in fg_mers:
-		if mer not in bg_mers:
-			bg_mers[mer] = 0
-
-	print fg_genome_length
-	print bg_genome_length
 	selected = select_mers(fg_mers, bg_mers)
 	for row in selected:
-		print row[0] +"\t"+str(row[1]) + "\t" + str(row[2]) + str(row[3])
+		print row[0] +"\t"+str("%d" % row[1]) + "\t" + str("%d" % row[2]) + "\t" + str("%.5f" % row[3])
 
 if __name__ == "__main__":
 	sys.exit(main())

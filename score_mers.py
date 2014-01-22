@@ -10,11 +10,11 @@ import pdb
 fg_mers = {}
 bg_mers = {}
 
-if(len(sys.argv) == 4):
+if(len(sys.argv) == 5):
 	selectivity_fn =  sys.argv[1]
-	fg_fasta_fn =  sys.argv[2]
-	bg_fasta_fn =  sys.argv[3]
-	output_file =  sys.argv[4]
+	fg_fasta_fn    =  sys.argv[2]
+	bg_fasta_fn    =  sys.argv[3]
+	output_file    =  sys.argv[4]
 else:
 	print "please specify your inputs"
 	print "ex: select_mers.py fg_counts_file fg_fasta_file bg_counts_file bg_fasta_file output_file"
@@ -139,17 +139,19 @@ def pop_bg(mer):
 def main():
 	import time
 	selected = []
-	selectivty_fh = open(selectivity_fn, "r")
+	selectivity_fh = open(selectivity_fn, "r")
 	
 	# get our genome length
 	fg_genome_length = os.path.getsize(fg_fasta_fn)
 	bg_genome_length = os.path.getsize(bg_fasta_fn)
 
-	for row in selectivity_fn:
+	for row in selectivity_fh:
 		(mer, fg_count, bg_count, selectivity) = row.split()
 		fg_mers[mer] = Mer()
+		fg_mers[mer].pts = []
 		fg_mers[mer].count = fg_count
 		bg_mers[mer] = Mer()
+		bg_mers[mer].pts = []
 		bg_mers[mer].count = bg_count
 		selected.append([mer, selectivity])
 		
@@ -160,6 +162,7 @@ def main():
  	# else:
   #		selected = select_mers(fg_mers, bg_mers, max_select)
  	selected =	selected[-100:] 
+	selected_mers = [row[0] for row in selected]
 	pdb.set_trace()
 	#	print "searching through combinations of"
 	#	print selected
@@ -167,10 +170,10 @@ def main():
 	print "Populating foreground locations"
 
 
-	map(pop_fg, selected)
-	map(pop_bg, selected)
+	map(pop_fg, selected_mers)
+	map(pop_bg, selected_mers)
 
-	scores = score_mers(selected)
+	scores = score_mers(selected_mers)
 
 	print "fg_genome_length", fg_genome_length
 	print "bg_genome_length", bg_genome_length
