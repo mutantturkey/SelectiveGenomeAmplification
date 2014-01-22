@@ -18,7 +18,7 @@ int main(int argc, char **argv){
 	// get max argument length
 	if(argc < 2) { 
 		printf("please supply a string to search for in stdin\n");
-		exit("EXIT_FAILURE");
+		exit(EXIT_FAILURE);
 		}
 	unsigned int save_size = strlen(argv[1]);
 
