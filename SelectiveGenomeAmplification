@@ -71,6 +71,8 @@ if [ ! -d $tmp_directory ]; then
 fi
 
 
+current_run=$output_`date +%s`
+mkdir -p $output_directory/$current_run 
 
 for fasta_file in $foreground $background; do
 
@@ -107,7 +109,7 @@ bg_counts=$counts_directory/$(basename $background)-counts
 fg_tmp=$tmp_directory/$(basename $foreground)
 bg_tmp=$tmp_directory/$(basename $background)
 
-selected=$tmp_directory/$(basename $foreground)_$(basename $background)-selected-mers
+selected=$output_directory/$current_run/selected-mers
 
 # remove ignored mers
 if [ "$ignore_mers" ]; then
@@ -131,4 +133,4 @@ echo "scoring mer selectivity"
 select_mers.py $fg_counts-non-melting $fg_tmp $bg_counts-non-melting $bg_tmp > $selected
 	
 echo "scoring top mers based on selectivity"
-score_mers.py $selected $fg_tmp $bg_tmp $output_directory/output_`date +%s`
+score_mers.py $selected $fg_tmp $bg_tmp $output_directory/$current_run/scores-output
