@@ -107,7 +107,7 @@ bg_counts=$counts_directory/$(basename $background)-counts
 fg_tmp=$tmp_directory/$(basename $foreground)
 bg_tmp=$tmp_directory/$(basename $background)
 
-selected=$tmp_directory/$(basename $foreground)$(basename $background)-selected
+selected=$tmp_directory/$(basename $foreground)_$(basename $background)-selected-mers
 
 # remove ignored mers
 if [ "$ignore_mers" ]; then
@@ -127,11 +127,8 @@ echo "checking if mers are below melting temperature in the background"
 rm $bg_counts-non-melting
 melting_range $min_melting_temp $max_melting_temp < $bg_counts > $bg_counts-non-melting
 
-#echo "scoring mer selectivity"
-# python ./mer_selectivity.py $fg_counts-non-melting $bg_counts-non-melting 
-mer_selectivity.py $fg_counts-non-melting $fg_tmp $bg_counts-non-melting $bg_tmp > $selected
+echo "scoring mer selectivity"
+select_mers.py $fg_counts-non-melting $fg_tmp $bg_counts-non-melting $bg_tmp > $selected
 	
-
-# echo "scoring top 100 mers based on selectivity"
-# select_mers.py $selected $output_directory/output_`date +%s`
-select_mers.py $selected $fg_tmp $bg_tmp $output_directory/output_`date +%s`
+echo "scoring top mers based on selectivity"
+score_mers.py $selected $fg_tmp $bg_tmp $output_directory/output_`date +%s`
