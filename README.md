@@ -42,7 +42,9 @@ Y | tmp_directory=$output_directory/.tmp | temporary files directory
 Y | max_melting_temp | 30° | maximum melting temp of mers
 Y | min_melting_temp | 0° | minimum melting temp of mers
 Y | min_mer_count | Not Enabled (0) | only select mers that occur more frequently than this number
-Y | max_select | maximum number of mers to pick
-Y | ignore_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore_mers="ACAGTA ACCATAA ATATATAT"
+Y | max\_select | maximum number of mers to pick
+Y | ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
 Y | foreground | Not Enabled | path of foreground file
 Y | background | Not Enabled | path of background file
+Y | max\_consecutive\_binding | 4 | The maxium number of consecutive binding nucleotides in homodimer and heterodimers
+

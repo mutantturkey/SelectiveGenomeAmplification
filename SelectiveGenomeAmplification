@@ -41,6 +41,8 @@ fi
 : ${max_select=15}
 # mers to specifically IGNORE, space delimited
 : ${ignore_mers=''}
+# maximum number of mers that are consecutively binding
+: ${max_consecutive_binding=4}
 
 export ignore_mers
 export min_mer_range
@@ -124,16 +126,16 @@ for var in ignore_mers min_mer_range max_mer_range max_select min_mer_count max_
  echo $var "${!var}" >> $output_directory/$current_run/parameters
 done;
 
-echo "checking if mers are below melting temperature in the foreground"
-rm $fg_counts-non-melting
-melting_range $min_melting_temp $max_melting_temp < $fg_counts > $fg_counts-non-melting 
+echo "checking if mers are within the melting range $min_melting_temp $max_melting_temp"
+cat $fg_counts | filter_melting_range $min_melting_temp $max_melting_temp > $fg_counts-non-melting 
+cat $bg_counts | filter_melting_range $min_melting_temp $max_melting_temp > $bg_counts-non-melting
 
-echo "checking if mers are below melting temperature in the background"
-rm $bg_counts-non-melting
-melting_range $min_melting_temp $max_melting_temp < $bg_counts > $bg_counts-non-melting
+echo "filtering out elements that have more consecutive binding mers than allowed by default $max_consecutive_binding"
+cat $fg_counts-non-melting | filter_max_consecutive_binding.py $max_consecutive_binding > $fg_counts-filtered-binding
+cat $bg_counts-non-melting | filter_max_consecutive_binding.py $max_consecutive_binding > $bg_counts-filtered-binding
 
 echo "scoring mer selectivity"
-select_mers.py $fg_counts-non-melting $fg_tmp $bg_counts-non-melting $bg_tmp > $selected
+select_mers.py $fg_counts-filtered-binding $fg_tmp $bg_counts-filtered-binding $bg_tmp > $selected
 	
 echo "scoring top mers based on selectivity"
 score_mers.py $selected $fg_tmp $bg_tmp $output_directory/$current_run/scores-output
