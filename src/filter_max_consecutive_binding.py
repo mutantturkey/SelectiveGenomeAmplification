@@ -8,17 +8,19 @@ def max_consecutive_binding(mer1, mer2):
 	if len(mer2) > len(mer1):
 		mer1, mer2 = mer2, mer1
 	
+	# save the len because it'll change when we do a ljust
+	mer1_len = len(mer1)
 	# reverse mer2,
 	mer2 = mer2[::-1]
 	# pad mer one to avoid errors
-	mer1 = mer1.ljust(len(mer1) + len(mer1), "_")
+	mer1 = mer1.ljust(mer1_len + len(mer2), "_")
 
 	max_bind = 0;
-	for offset in range(len(mer2)):
+	for offset in range(mer1_len):
 		consecutive = 0
 		for x in range(len(mer2)):
 			if binding[mer1[offset+x]] == mer2[x]:
-					consecutive = consecutive + 1
+				consecutive = consecutive + 1
 			else:
 				consecutive = 0
 
@@ -39,6 +41,7 @@ def test():
 	("ACG",          "CGT",			 				3),
 	("CACC", 				 "GGTGT", 					4),
 	("GGTGT", 			 "CACC", 					4),
+	("CCCCCCCCATATAT", "TATA", 4),
 	]
 	
 	print 'pass\tmer1\tmer2\tres\tcorr'
