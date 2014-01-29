@@ -9,7 +9,7 @@ float melting_temperature(char *mer) {
 	float c = 0;
 	float g = 0;
 	float t = 0;
-	int i = 0;
+	size_t i = 0;
 
 	for(i = 0; i < strlen(mer); i++) {
 		switch(mer[i]) {
@@ -45,12 +45,12 @@ int main(int argc, char **argv){
 	float min = atof(argv[1]);
 	float max = atof(argv[2]);
 	
-	char mer[24] = { 0 };
+	char mer[64];
 	int count = 0;
 
-	while(fscanf(stdin, "%s\t%d\n", &mer, &count) == 2) {
+	while(fscanf(stdin, "%s\t%d\n", mer, &count) == 2) {
 		float temp = melting_temperature(mer);
-		if( (temp > min) && (temp < max) )
+		if( (temp >= min) && (temp <= max) )
 			printf("%s\t%d\n", mer, count);
 	}
 
