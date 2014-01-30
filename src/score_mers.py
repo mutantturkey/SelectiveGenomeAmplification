@@ -30,7 +30,34 @@ max_mer_range    = int(os.environ.get("max_mer_range", 10));
 min_mer_count    = int(os.environ.get("min_mer_count", 0));
 max_select       = int(os.environ.get("max_select", 15));
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000));
+nb_max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4));
 
+
+binding = { 'A': 'T', 'T': 'A',	'C': 'G', 'G': 'C',	'_': False }
+
+def max_consecutive_binding(mer1, mer2):
+	if len(mer2) > len(mer1):
+		mer1, mer2 = mer2, mer1
+	
+	# save the len because it'll change when we do a ljust
+	mer1_len = len(mer1)
+	# reverse mer2,
+	mer2 = mer2[::-1]
+	# pad mer one to avoid errors
+	mer1 = mer1.ljust(mer1_len + len(mer2), "_")
+
+	max_bind = 0;
+	for offset in range(mer1_len):
+		consecutive = 0
+		for x in range(len(mer2)):
+			if binding[mer1[offset+x]] == mer2[x]:
+				consecutive = consecutive + 1
+			else:
+				consecutive = 0
+
+			max_bind = max(consecutive,max_bind)
+
+	return max_bind
 
 def populate_locations(input_fn, mers, mer):
 	''' Run the strstreamone command, and parse in the integers that are output
@@ -64,40 +91,46 @@ def score_mers(selected):
 	return scores
 
 
+heterodimer_dic = {}
+
 def score(combination):
 # input is a string of mers like 
 # ['ACCAA', 'ACCCGA', 'ACGTATA']
 
 	ret = [combination]
 
+
+	# Check duplicates
 	for mer in combination:
 		for other_mer in combination:
 			if not mer == other_mer:
 				if mer in other_mer:
 					ret.append("duplicates")
-					return ret 
+					return ret
+	
+	# check heterodimers!
+	for (mer1, mer2) in combinations(combination, 2):
+		combo = (mer1, mer2)
+		if combo not in heterodimer_dic:
+			heterodimer_dic[combo] = max_consecutive_binding(mer1, mer2)
 
+		if heterodimer_dic[combo] > nb_max_consecutive_binding:
+			ret.append("heterodimer")
+			return ret
+			# return None
+	
+
+	# fg points
 	fg_pts = []
 	fg_dist = []
 
-	bg_pts = []
-	bg_dist = []
-
 	for mer in combination:
 		fg_pts = fg_pts + fg_mers[mer].pts
-		bg_pts = bg_pts + bg_mers[mer].pts
 
 	fg_pts.sort()
-	bg_pts.sort()
 
-	# remove any exact duplicates
-	# fg_pts = list(set(fg_pts))
-	# bg_pts = list(set(bg_pts))
-
-	#	distances
-	min_mer_distance = max(len(i) for i in combination)
+	# fg distances
 	fg_dist = np.array([abs(fg_pts[i] - fg_pts[i-1]) for i in range(1, len(fg_pts))])
-	bg_dist = np.array([abs(bg_pts[i] - bg_pts[i-1]) for i in range(1, len(bg_pts))])
 
   # return without calculating scores if any objects are higher than our max distance
 	if any(dist > max_mer_distance for dist in fg_dist):
@@ -105,11 +138,24 @@ def score(combination):
 		ret.append(max(fg_dist))
 		return ret 
 
+	min_mer_distance = max(len(i) for i in combination)
 	# return without calculating scores if any mers are closer than the length of our longest mer in the combination
 	if any(dist < min_mer_distance for dist in fg_dist):
 		ret.append("min")
 		ret.append(min(fg_dist))
 		return ret 
+
+	# bg points
+	bg_pts = []
+	bg_dist = []
+
+	for mer in combination:
+		bg_pts = bg_pts + bg_mers[mer].pts
+
+	bg_pts.sort()
+
+	#	 bg distances
+	bg_dist = np.array([abs(bg_pts[i] - bg_pts[i-1]) for i in range(1, len(bg_pts))])
 
 	nb_primers = len(combination)
 	fg_mean_dist =  np.mean(fg_dist)
