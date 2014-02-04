@@ -4,6 +4,9 @@ import os
 
 from multiprocessing import Pool
 from subprocess import *
+from itertools  import combinations
+from itertools  import ifilter
+
 import numpy as np
 import pdb
 
@@ -88,10 +91,7 @@ def check_heterodimer(combination):
 	
 
 def score_mers(selected):
-	from itertools  import combinations
 	import time
-
-	scores = []
 
 	p = Pool()
 
@@ -100,41 +100,17 @@ def score_mers(selected):
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
 		t = time.time()
-		scores_it = p.imap_unordered(score, combinations(selected, select_n))
+		scores_it = p.imap_unordered(score, ifilter(lambda x: check_heterodimer(x) is not None, ifilter(lambda x: check_duplicates(x) is not None, combinations(selected, select_n))))
 		for score_res in scores_it:
-			fh.write(str(score_res) + "\n");
+			if score_res is not None:
+				fh.write(str(score_res) + "\n");
 		print "size ", select_n, "took:", t - time.time()	
-	return scores
 
 
 heterodimer_dic = {}
-
 def score(combination):
 # input is a string of mers like 
 # ['ACCAA', 'ACCCGA', 'ACGTATA']
-
-	ret = [combination]
-
-
-	# Check duplicates
-	for mer in combination:
-		for other_mer in combination:
-			if not mer == other_mer:
-				if mer in other_mer:
-					ret.append("duplicates")
-					return ret
-	
-	# check heterodimers!
-	for (mer1, mer2) in combinations(combination, 2):
-		combo = (mer1, mer2)
-		if combo not in heterodimer_dic:
-			heterodimer_dic[combo] = max_consecutive_binding(mer1, mer2)
-
-		if heterodimer_dic[combo] > nb_max_consecutive_binding:
-			ret.append("heterodimer")
-			return ret
-			# return None
-	
 
 	# fg points
 	fg_pts = []
@@ -150,16 +126,18 @@ def score(combination):
 
   # return without calculating scores if any objects are higher than our max distance
 	if any(dist > max_mer_distance for dist in fg_dist):
-		ret.append("max")
-		ret.append(max(fg_dist))
-		return ret 
+		#ret.append("max")
+		#ret.append(max(fg_dist))
+		#return ret
+		return None
 
 	min_mer_distance = max(len(i) for i in combination)
 	# return without calculating scores if any mers are closer than the length of our longest mer in the combination
 	if any(dist < min_mer_distance for dist in fg_dist):
-		ret.append("min")
-		ret.append(min(fg_dist))
-		return ret 
+		return None
+		#ret.append("min")
+		#ret.append(min(fg_dist))
+		#return ret 
 
 	# bg points
 	bg_pts = []
@@ -182,13 +160,7 @@ def score(combination):
 	# this is our equation
 	score = (nb_primers * fg_mean_dist * fg_variance_dist) / ((bg_mean_dist * bg_variance_dist) + .000001)
 
-	ret.append(score)
-	ret.append(fg_mean_dist)
-	ret.append(fg_variance_dist)
-	ret.append(bg_mean_dist)
-	ret.append(bg_variance_dist)
-
-	return ret
+	return [score, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist]
 
 def pop_fg(mer):
 	''' helper for map function '''
@@ -223,19 +195,26 @@ def main():
   #		selected = fg_mers.keys()
  	# else:
   #		selected = select_mers(fg_mers, bg_mers, max_select)
- 	selected =	selected[-100:] 
+ 	selected =	selected[-50:] 
 	selected_mers = [row[0] for row in selected]
-	pdb.set_trace()
+	# pdb.set_trace()
 	#	print "searching through combinations of"
 	#	print selected
 
 	print "Populating foreground locations"
 
-
 	map(pop_fg, selected_mers)
+	print "Populating background locations"
+
 	map(pop_bg, selected_mers)
 
-	scores = score_mers(selected_mers)
+	print "calculating heterodimer distances"
+	for (mer1, mer2) in combinations(selected_mers, 2):
+		if (mer1, mer2) not in heterodimer_dic:
+			heterodimer_dic[(mer1, mer2)] = max_consecutive_binding(mer1, mer2)
+
+	print "scoring mer combinations"
+	score_mers(selected_mers)
 
 	print "fg_genome_length", fg_genome_length
 	print "bg_genome_length", bg_genome_length
