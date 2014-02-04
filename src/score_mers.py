@@ -71,6 +71,22 @@ def populate_locations(input_fn, mers, mer):
 		mers[mer].pts.append(int(line))
 
 
+def check_duplicates(combination):
+	for mer in combination:
+		for other_mer in combination:
+			if not mer == other_mer:
+				if mer in other_mer:
+					return None
+	return combination
+
+def check_heterodimer(combination):
+	for combo in combinations(combination, 2):
+		if heterodimer_dic[combo] > nb_max_consecutive_binding:
+			return None
+	return combination
+
+	
+
 def score_mers(selected):
 	from itertools  import combinations
 	import time
