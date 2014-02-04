@@ -20,11 +20,11 @@ def max_consecutive_binding(mer1, mer2):
 		consecutive = 0
 		for x in range(len(mer2)):
 			if binding[mer1[offset+x]] == mer2[x]:
-				consecutive = consecutive + 1
+				consecutive += 1
+				if consecutive > max_bind:
+					max_bind = consecutive
 			else:
 				consecutive = 0
-
-			max_bind = max(consecutive,max_bind)
 
 	return max_bind
 
