@@ -74,24 +74,22 @@ def populate_locations(input_fn, mers, mer):
 		mers[mer].pts.append(int(line))
 
 
-def check_duplicates(combination):
+def apply_filters(combination):
 	for mer in combination:
 		for other_mer in combination:
 			if not mer == other_mer:
 				if mer in other_mer:
-					return None
-	return combination
+					return False
 
-def check_heterodimer(combination):
 	for combo in combinations(combination, 2):
 		if heterodimer_dic[combo] > nb_max_consecutive_binding:
-			return None
-	return combination
+			return False
 
-	
+	return True
 
 def score_mers(selected):
 	import time
+	# import gmpy
 
 	p = Pool()
 
@@ -100,11 +98,11 @@ def score_mers(selected):
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
 		t = time.time()
-		scores_it = p.imap_unordered(score, ifilter(lambda x: check_heterodimer(x) is not None, ifilter(lambda x: check_duplicates(x) is not None, combinations(selected, select_n))))
+		scores_it = p.imap_unordered(score, ifilter(apply_filters, combinations(selected, select_n)), chunksize=128)
 		for score_res in scores_it:
 			if score_res is not None:
 				fh.write(str(score_res) + "\n");
-		print "size ", select_n, "took:", t - time.time()	
+		print "size ", select_n, "took:", time.time()	- t
 
 
 heterodimer_dic = {}
@@ -112,6 +110,9 @@ def score(combination):
 # input is a string of mers like 
 # ['ACCAA', 'ACCCGA', 'ACGTATA']
 
+
+	#if not apply_filters(combination):
+	#	return [combination, "filter"]
 	# fg points
 	fg_pts = []
 	fg_dist = []
@@ -127,17 +128,12 @@ def score(combination):
   # return without calculating scores if any objects are higher than our max distance
 	if any(dist > max_mer_distance for dist in fg_dist):
 		#ret.append("max")
-		#ret.append(max(fg_dist))
-		#return ret
-		return None
+		return [combination, "max", max(fg_dist)]
 
 	min_mer_distance = max(len(i) for i in combination)
 	# return without calculating scores if any mers are closer than the length of our longest mer in the combination
 	if any(dist < min_mer_distance for dist in fg_dist):
-		return None
-		#ret.append("min")
-		#ret.append(min(fg_dist))
-		#return ret 
+		return [combination, "minx", min(fg_dist)]
 
 	# bg points
 	bg_pts = []
@@ -148,7 +144,7 @@ def score(combination):
 
 	bg_pts.sort()
 
-	#	 bg distances
+	# bg distances
 	bg_dist = np.array([abs(bg_pts[i] - bg_pts[i-1]) for i in range(1, len(bg_pts))])
 
 	nb_primers = len(combination)
@@ -189,17 +185,8 @@ def main():
 		bg_mers[mer].count = bg_count
 		selected.append([mer, selectivity])
 		
-  #	exhaustive = False
-  #
-	# if exhaustive:
-  #		selected = fg_mers.keys()
- 	# else:
-  #		selected = select_mers(fg_mers, bg_mers, max_select)
- 	selected =	selected[-50:] 
+	selected =	selected[-35:] 
 	selected_mers = [row[0] for row in selected]
-	# pdb.set_trace()
-	#	print "searching through combinations of"
-	#	print selected
 
 	print "Populating foreground locations"
 
