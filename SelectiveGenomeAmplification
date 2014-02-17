@@ -127,15 +127,15 @@ for var in ignore_mers min_mer_range max_consecutive_binding max_mer_range max_s
 done;
 
 echo "checking if mers are within the melting range $min_melting_temp $max_melting_temp"
-cat $fg_counts | filter_melting_range $min_melting_temp $max_melting_temp > $output_directory/$foreground-counts-non-melting 
-cat $bg_counts | filter_melting_range $min_melting_temp $max_melting_temp > $output_directory/$background-counts-non-melting 
+cat $fg_counts | filter_melting_range $min_melting_temp $max_melting_temp > $output_directory/$current_run/$foreground-counts-non-melting 
+cat $bg_counts | filter_melting_range $min_melting_temp $max_melting_temp > $output_directory/$current_run/$background-counts-non-melting 
 
 echo "filtering out elements that have more consecutive binding mers than allowed by default $max_consecutive_binding"
-cat $output_directory/$foreground-counts-non-melting | filter_max_consecutive_binding.py $max_consecutive_binding > $output_directory/$foreground-counts-filtered-binding
-cat $output_directory/$background-counts-non-melting | filter_max_consecutive_binding.py $max_consecutive_binding > $output_directory/$background-counts-filtered-binding
+cat $output_directory/$current_run/$foreground-counts-non-melting | filter_max_consecutive_binding.py $max_consecutive_binding > $output_directory/$current_run/$foreground-counts-filtered-binding
+cat $output_directory/$current_run/$background-counts-non-melting | filter_max_consecutive_binding.py $max_consecutive_binding > $output_directory/$current_run/$background-counts-filtered-binding
 
 echo "scoring mer selectivity"
-select_mers.py $output_directory/$foreground-counts-filtered-binding $fg_tmp $output_directory/$background-counts-filtered-binding $bg_tmp > $selected
+select_mers.py $output_directory/$current_run/$foreground-counts-filtered-binding $fg_tmp $output_directory/$current_run/$background-counts-filtered-binding $bg_tmp > $selected
 	
 echo "scoring top mers based on selectivity"
 score_mers.py $selected $fg_tmp $bg_tmp $output_directory/$current_run/scores-output
