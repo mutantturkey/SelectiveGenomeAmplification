@@ -196,14 +196,19 @@ def pop_bg(mer):
 	''' helper for map function '''
 	populate_locations(bg_fasta_fn, bg_mers, mer)
 
+def load_heterodimer_dic(selected_mers):
+	for (mer1, mer2) in combinations(selected_mers, 2):
+		res = max_consecutive_binding(mer1, mer2)
+		heterodimer_dic[(mer1, mer2)] = res > nb_max_consecutive_binding
+		heterodimer_dic[(mer2, mer1)] = res > nb_max_consecutive_binding
+		# print res, heterodimer_dic[(mer1, mer2)]
+
 def main():
 	import time
 	selected = []
 	selectivity_fh = open(selectivity_fn, "r")
 	
 	# get our genome length
-	fg_genome_length = os.path.getsize(fg_fasta_fn)
-	bg_genome_length = os.path.getsize(bg_fasta_fn)
 
 	for row in selectivity_fh:
 		(mer, fg_count, bg_count, selectivity) = row.split()
@@ -217,6 +222,7 @@ def main():
 		
 	selected =	selected[-max_check:] 
 	selected_mers = [row[0] for row in selected]
+	# print selected_mers
 
 	print "Populating foreground locations"
 	map(pop_fg, selected_mers)
@@ -225,17 +231,11 @@ def main():
 	map(pop_bg, selected_mers)
 
 	print "calculating heterodimer distances"
-	for (mer1, mer2) in combinations(selected_mers, 2):
-		res = max_consecutive_binding(mer1, mer2)
-		heterodimer_dic[(mer1, mer2)] = res > nb_max_consecutive_binding
-		heterodimer_dic[(mer2, mer1)] = res > nb_max_consecutive_binding
-		print heterodimer_dic[(mer1, mer2)]
+	load_heterodimer_dic(selected_mers)
 
 	print "scoring mer combinations"
 	score_mers(selected_mers)
 
-	print "fg_genome_length", fg_genome_length
-	print "bg_genome_length", bg_genome_length
 	print "output_file:", output_file
 	
 
