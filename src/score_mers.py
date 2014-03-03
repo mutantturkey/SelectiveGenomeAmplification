@@ -20,9 +20,12 @@ if(len(sys.argv) == 5):
 	fg_fasta_fn    =  sys.argv[2]
 	bg_fasta_fn    =  sys.argv[3]
 	output_file    =  sys.argv[4]
+
+	fg_genome_length = os.path.getsize(fg_fasta_fn)
+	bg_genome_length = os.path.getsize(bg_fasta_fn)
 else:
 	print "please specify your inputs"
-	print "ex: select_mers.py fg_counts_file fg_fasta_file bg_counts_file bg_fasta_file output_file"
+	print "ex: score_mers.py selectivity_file fg_fasta_file bg_fasta_file"
 	exit()
 
 # empty class to fill up mer information with
