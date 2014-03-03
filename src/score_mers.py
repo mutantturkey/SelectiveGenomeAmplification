@@ -129,6 +129,10 @@ def score(combination):
 # input is a string of mers like 
 # ['ACCAA', 'ACCCGA', 'ACGTATA']
 
+	for combo in combinations(combination, 2):
+		if [combo] is True:
+			#return [combination, 'het']
+			return None
 
 	for mer in combination:
 		for other_mer in combination:
@@ -136,11 +140,6 @@ def score(combination):
 				if mer in other_mer:
 				  #return [combination, 'dup']
 					return None
-
-	for combo in combinations(combination, 2):
-		if heterodimer_dic[combo] is True:
-			#return [combination, 'het']
-			return None
 
 	# fg points
 	fg_pts = []
