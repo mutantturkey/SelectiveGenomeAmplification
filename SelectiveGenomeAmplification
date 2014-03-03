@@ -122,7 +122,7 @@ if [ "$ignore_mers" ]; then
 fi
 
 echo "outputing current run parameters"
-for var in ignore_mers min_mer_range max_consecutive_binding max_mer_range max_select min_mer_count max_mer_distance max_melting_temp min_melting_temp foreground background; do 
+for var in ignore_mers min_mer_range max_check cpus max_consecutive_binding max_mer_range max_select min_mer_count max_mer_distance max_melting_temp min_melting_temp foreground background; do 
  echo $var "${!var}" >> $output_directory/$current_run/parameters
 done;
 

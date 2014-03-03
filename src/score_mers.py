@@ -3,9 +3,11 @@ import sys
 import os
 
 from multiprocessing import Pool
+from multiprocessing import cpu_count
 from subprocess import *
 from itertools  import combinations
 from itertools  import ifilter
+from itertools  import imap
 
 import numpy as np
 import pdb
@@ -28,10 +30,12 @@ class Mer:
 	pass
 
 # import our variables
+cpus = int(os.environ.get("cpus", cpu_count()));
 min_mer_range    = int(os.environ.get("min_mer_range", 6));
 max_mer_range    = int(os.environ.get("max_mer_range", 10));
 min_mer_count    = int(os.environ.get("min_mer_count", 0));
 max_select       = int(os.environ.get("max_select", 15));
+max_check = int(os.environ.get("max_check", 35));
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000));
 nb_max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4));
 
@@ -82,27 +86,28 @@ def apply_filters(combination):
 					return False
 
 	for combo in combinations(combination, 2):
-		if heterodimer_dic[combo] > nb_max_consecutive_binding:
+		if heterodimer_dic[combo]:
 			return False
 
 	return True
+
 
 def score_mers(selected):
 	import time
 	# import gmpy
 
-	p = Pool()
+	p = Pool(cpus)
 
 	fh = open(output_file, 'w');
 	fh.write("scores:\n");
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
 		t = time.time()
-		scores_it = p.imap_unordered(score, ifilter(apply_filters, combinations(selected, select_n)), chunksize=128)
+		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=128000)
 		for score_res in scores_it:
 			if score_res is not None:
 				fh.write(str(score_res) + "\n");
-		print "size ", select_n, "took:", time.time()	- t
+		print "size ", select_n, "took:", time.time()   - t
 
 
 heterodimer_dic = {}
@@ -111,8 +116,18 @@ def score(combination):
 # ['ACCAA', 'ACCCGA', 'ACGTATA']
 
 
-	#if not apply_filters(combination):
-	#	return [combination, "filter"]
+	for mer in combination:
+		for other_mer in combination:
+			if not mer == other_mer:
+				if mer in other_mer:
+				  #return [combination, 'dup']
+					return None
+
+	for combo in combinations(combination, 2):
+		if heterodimer_dic[combo] is True:
+			#return [combination, 'het']
+			return None
+
 	# fg points
 	fg_pts = []
 	fg_dist = []
@@ -127,13 +142,15 @@ def score(combination):
 
   # return without calculating scores if any objects are higher than our max distance
 	if any(dist > max_mer_distance for dist in fg_dist):
-		#ret.append("max")
-		return [combination, "max", max(fg_dist)]
+		#return [combination, "max", max(fg_dist)]
+		 return None
 
 	min_mer_distance = max(len(i) for i in combination)
 	# return without calculating scores if any mers are closer than the length of our longest mer in the combination
 	if any(dist < min_mer_distance for dist in fg_dist):
-		return [combination, "minx", min(fg_dist)]
+		#return [combintaion, 'max']
+		return None
+
 
 	# bg points
 	bg_pts = []
@@ -145,7 +162,7 @@ def score(combination):
 	bg_pts.sort()
 
 	# bg distances
-	bg_dist = np.array([abs(bg_pts[i] - bg_pts[i-1]) for i in range(1, len(bg_pts))])
+	bg_dist = np.diff(bg_pts)
 
 	nb_primers = len(combination)
 	fg_mean_dist =  np.mean(fg_dist)
@@ -185,20 +202,21 @@ def main():
 		bg_mers[mer].count = bg_count
 		selected.append([mer, selectivity])
 		
-	selected =	selected[-35:] 
+	selected =	selected[-max_check:] 
 	selected_mers = [row[0] for row in selected]
 
 	print "Populating foreground locations"
-
 	map(pop_fg, selected_mers)
-	print "Populating background locations"
 
+	print "Populating background locations"
 	map(pop_bg, selected_mers)
 
 	print "calculating heterodimer distances"
 	for (mer1, mer2) in combinations(selected_mers, 2):
-		if (mer1, mer2) not in heterodimer_dic:
-			heterodimer_dic[(mer1, mer2)] = max_consecutive_binding(mer1, mer2)
+		res = max_consecutive_binding(mer1, mer2)
+		heterodimer_dic[(mer1, mer2)] = res > nb_max_consecutive_binding
+		heterodimer_dic[(mer2, mer1)] = res > nb_max_consecutive_binding
+		print heterodimer_dic[(mer1, mer2)]
 
 	print "scoring mer combinations"
 	score_mers(selected_mers)
