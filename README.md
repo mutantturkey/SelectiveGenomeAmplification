@@ -42,8 +42,8 @@ Y | tmp\_directory=$output\_directory/.tmp | temporary files directory
 Y | max\_melting\_temp | 30° | maximum melting temp of mers
 Y | min\_melting\_temp | 0° | minimum melting temp of mers
 Y | min\_mer\_count | Not Enabled (0) | only select mers that occur more frequently than this number
-Y | max\_select | |maximum number of mers to pick
-Y | max\_check | |maximum number of mers to select (check the top #)
+Y | max\_select | 15 | maximum number of mers to pick
+Y | max\_check | 35  | maximum number of mers to select (check the top #)
 Y | ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
 Y | foreground | Not Enabled | path of foreground file
 Y | background | Not Enabled | path of background file
