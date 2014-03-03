@@ -97,16 +97,27 @@ def apply_filters(combination):
 
 def score_mers(selected):
 	import time
+	import gzip
 	# import gmpy
 
 	p = Pool(cpus)
 
-	fh = open(output_file, 'w');
-	fh.write("scores:\n");
+	fh = gzip.open(output_file + ".gz", 'wb');
+
+	total = 0;
+	for mer in selected:
+		total += len(fg_mers[mer].pts)
+	if (fg_genome_length / total) > max_mer_distance:
+		print "even if we select all top ", max_select, 
+		print "mers disregarding any critera, and they were perfectly evenly spaced we would ",
+		print "still not meet the right max mer distance < ", max_mer_distance, "requirement."
+	
+		print total, " / ", fg_genome_length, " = ", total / fg_genome_length 
+
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
 		t = time.time()
-		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=128000)
+		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=8192)
 		for score_res in scores_it:
 			if score_res is not None:
 				fh.write(str(score_res) + "\n");
