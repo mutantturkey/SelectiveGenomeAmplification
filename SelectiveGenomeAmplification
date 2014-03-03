@@ -23,24 +23,36 @@ fi
 
 # output directory 
 : ${output_directory=`basename $foreground`_`basename $background`}
+
 # temp directory 
 : ${tmp_directory=$output_directory/.tmp}
+
 # directory to store our counts and sorted counts
 : ${counts_directory=$tmp_directory}
+
 # range of mers, min and max 
 : ${min_mer_range=6}
-: ${max_mer_range=10}
+: ${max_mer_range=12}
+
 # max mer distance, the distance between two mers in our selected outputs
 : ${max_mer_distance=5000}
+
 # min/maximum kmer meling point
 : ${max_melting_temp=30}
-: ${min_melting_temp=18}
+: ${min_melting_temp=0}
+
 # minimum mer count
 : ${min_mer_count=0}
+
 # maximum mers to pick
 : ${max_select=15}
+
+# maximum mers to check
+: ${max_check=35}
+
 # mers to specifically IGNORE, space delimited
 : ${ignore_mers=''}
+
 # maximum number of mers that are consecutively binding
 : ${max_consecutive_binding=4}
 

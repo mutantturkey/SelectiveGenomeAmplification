@@ -10,30 +10,43 @@ questions = [
 	{ 'question' : "Where would you like your output directory to be?", 
 	  'default_str': 'current directory/foreground_background/',
 	  'variable': 'output_directory' },
+
 	{'question': "Where would you like to temporary files to be stored?",
 	 'default_str': '$output_directory/.tmp',
 	 'variable': "temp_directory" },
+
 	{'question': "Where would you like to count files to be stored?",
 	 'default_str': '$output_directory/.tmp',
 	 'variable': "counts_directory" },
+
 	{ 'question': 'maximum mer size you would like to pick?',
 	  'default_str': '12',
 	  'variable': 'max_mer_range' },
+
 	{ 'question': 'minimum mer size you would like to pick?',
 	  'default_str': '6',
 	  'variable': 'min_mer_range' },
+
 	{ 'question': 'minimum mer count you want to have for your selected mer?',
 	  'default_str': 'None',
 	  'variable': 'min_mer_count' },
-	{ 'question': 'maximum number of mers you want to search and select?',
+
+	{ 'question': 'maximum size of mer combinations you want to search and select?',
 	  'default_str': '15',
 	  'variable': 'max_select' },
+
+	{ 'question': 'maximum number of mers you want to use as possible primers?',
+	  'default_str': '35',
+	  'variable': 'max_check' },
+
 	{'question': 'Enter mers to ignore? (space seperated)',
 	 'default_str': "None",
 	 'variable': 'ignore_mers'},
+
 	{ 'question': 'maximum distance between mers in the final selection?',
 	  'default_str': "5000 bases",
 	  'variable': 'max_mer_distance' },
+
 	{ 'question': 'maximum melting temperature for mers?', 'default_str': '30c', 'variable': 'max_melting_temp' },
 	{ 'question': 'minimum melting temperature for mers?', 'default_str': '0c',  'variable': 'min_melting_temp' },
 	{ 'question': 'maximum number of consecutively binding mers in hetero and homodimers?', 'default_str': '4', 'variable': 'max_consecutive_binding' }

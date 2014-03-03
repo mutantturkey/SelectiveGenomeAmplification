@@ -35,17 +35,17 @@ class Mer:
 # import our variables
 cpus = int(os.environ.get("cpus", cpu_count()));
 min_mer_range    = int(os.environ.get("min_mer_range", 6));
-max_mer_range    = int(os.environ.get("max_mer_range", 10));
+max_mer_range    = int(os.environ.get("max_mer_range", 12));
 min_mer_count    = int(os.environ.get("min_mer_count", 0));
 max_select       = int(os.environ.get("max_select", 15));
-max_check = int(os.environ.get("max_check", 35));
+max_check        = int(os.environ.get("max_check", 35));
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000));
-nb_max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4));
+max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4));
 
 
 binding = { 'A': 'T', 'T': 'A',	'C': 'G', 'G': 'C',	'_': False }
 
-def max_consecutive_binding(mer1, mer2):
+def get_max_consecutive_binding(mer1, mer2):
 	if len(mer2) > len(mer1):
 		mer1, mer2 = mer2, mer1
 	
@@ -198,9 +198,9 @@ def pop_bg(mer):
 
 def load_heterodimer_dic(selected_mers):
 	for (mer1, mer2) in combinations(selected_mers, 2):
-		res = max_consecutive_binding(mer1, mer2)
-		heterodimer_dic[(mer1, mer2)] = res > nb_max_consecutive_binding
-		heterodimer_dic[(mer2, mer1)] = res > nb_max_consecutive_binding
+		res = get_max_consecutive_binding(mer1, mer2)
+		heterodimer_dic[(mer1, mer2)] = res > max_consecutive_binding
+		heterodimer_dic[(mer2, mer1)] = res > max_consecutive_binding
 		# print res, heterodimer_dic[(mer1, mer2)]
 
 def main():
