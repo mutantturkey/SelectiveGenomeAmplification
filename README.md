@@ -33,16 +33,17 @@ range of mers, min and max
 
 C | variable | default | notes
 :---- | :---- | :---- | ---- | :----
-Y | min_mer_range | 6  | minimum mer size to use
-Y | max_mer_range | 10 | maximum mer size to use 
-Y | max_mer_distance | 5000 | maximum distance between mers in foreground
-N | output_directory | $PWD/$foreground_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta_HumanGenome_output.fasta/
-Y | counts_directory | $output_directory/.tmp | directory for counts directory
-Y | tmp_directory=$output_directory/.tmp | temporary files directory
-Y | max_melting_temp | 30° | maximum melting temp of mers
-Y | min_melting_temp | 0° | minimum melting temp of mers
-Y | min_mer_count | Not Enabled (0) | only select mers that occur more frequently than this number
-Y | max\_select | maximum number of mers to pick
+Y | min\_mer\_range | 6  | minimum mer size to use
+Y | max\_mer\_range | 12 | maximum mer size to use 
+Y | max\_mer\_distance | 5000 | maximum distance between mers in foreground
+N | output\_directory | $PWD/$foreground\_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta\_HumanGenome\_output.fasta/
+Y | counts\_directory | $output\_directory/.tmp | directory for counts directory
+Y | tmp\_directory=$output\_directory/.tmp | temporary files directory
+Y | max\_melting\_temp | 30° | maximum melting temp of mers
+Y | min\_melting\_temp | 0° | minimum melting temp of mers
+Y | min\_mer\_count | Not Enabled (0) | only select mers that occur more frequently than this number
+Y | max\_select | |maximum number of mers to pick
+Y | max\_check | |maximum number of mers to select (check the top #)
 Y | ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
 Y | foreground | Not Enabled | path of foreground file
 Y | background | Not Enabled | path of background file
