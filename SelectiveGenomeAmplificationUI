@@ -82,7 +82,7 @@ def variables_to_string(variables):
 			ret = ret + variable + "=\"" + variables[variable] + "\" "
 
 	ret = ret + "foreground=\"" + foreground + "\" "
-	ret = ret + "background=\"" + foreground + "\" "
+	ret = ret + "background=\"" + background + "\" "
 	return ret
 
 def run(variables_as_a_string):
