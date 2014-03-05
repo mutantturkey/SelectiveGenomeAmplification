@@ -120,9 +120,9 @@ def score_mers(selected):
 		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=8192)
 		for score_res in scores_it:
 			if score_res is not None:
-				combination, score, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist = score_res
+				combination, scores, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist = score_res
 				fh.write(str(combination) + "\t");
-				fh.write(str(score) + "\t");
+				fh.write(str(scores) + "\t");
 				fh.write(str(fg_mean_dist) + "\t");
 				fh.write(str(fg_variance_dist) + "\t");
 				fh.write(str(bg_mean_dist) + "\t");
