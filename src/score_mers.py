@@ -97,12 +97,11 @@ def apply_filters(combination):
 
 def score_mers(selected):
 	import time
-	import gzip
 	# import gmpy
 
 	p = Pool(cpus)
 
-	fh = gzip.open(output_file + ".gz", 'wb');
+	fh = open(output_file, 'wb');
 
 	total = 0;
 	for mer in selected:
@@ -114,13 +113,20 @@ def score_mers(selected):
 	
 		print total, " / ", fg_genome_length, " = ", total / fg_genome_length 
 
+	fh.write("Combination\tScore\tFG_mean_dist\tFG_var_dist\tBG_mean_dist\tBG_var_dist\n");
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
 		t = time.time()
 		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=8192)
 		for score_res in scores_it:
 			if score_res is not None:
-				fh.write(str(score_res) + "\n");
+				combination, score, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist = score_res
+				fh.write(str(combination) + "\t");
+				fh.write(str(score) + "\t");
+				fh.write(str(fg_mean_dist) + "\t");
+				fh.write(str(fg_variance_dist) + "\t");
+				fh.write(str(bg_mean_dist) + "\t");
+				fh.write(str(bg_variance_dist) + "\n");
 		print "size ", select_n, "took:", time.time()   - t
 
 
@@ -186,7 +192,7 @@ def score(combination):
 	# this is our equation
 	score = (nb_primers * fg_mean_dist * fg_variance_dist) / ((bg_mean_dist * bg_variance_dist) + .000001)
 
-	return [score, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist]
+	return [combination, score, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist]
 
 def pop_fg(mer):
 	''' helper for map function '''
