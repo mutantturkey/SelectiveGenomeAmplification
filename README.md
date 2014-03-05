@@ -12,7 +12,7 @@ To use this you'll need:
  
 Setup:
 
-    git clone git@github.com:mutantturkey/SelectiveGenomeAmplification.gi
+    git clone git@github.com:mutantturkey/SelectiveGenomeAmplification.git
     cd SelectiveGenomeAmplification
     make
     sudo make install
