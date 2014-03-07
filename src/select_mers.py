@@ -7,18 +7,13 @@ bg_mers = {}
 
 min_mer_count = int(os.environ.get("min_mer_count", 0));
 
-if(len(sys.argv) == 5):
+if(len(sys.argv) == 3):
 	fg_count_fn =  sys.argv[1]
-	fg_fasta_fn =  sys.argv[2]
-	bg_count_fn =  sys.argv[3]
-	bg_fasta_fn =  sys.argv[4]
-
-	fg_genome_length = os.path.getsize(fg_fasta_fn)
-	bg_genome_length = os.path.getsize(bg_fasta_fn)
+	bg_count_fn =  sys.argv[2]
 else:
 	print len(sys.argv)
 	print "please specify your inputs"
-	print "ex: select_mers.py fg_counts fg_fasta bg_counts bg_fasta"
+	print "ex: select_mers.py fg_counts bg_counts"
 	exit()
 
 
