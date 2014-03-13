@@ -43,9 +43,20 @@ max_mer_distance = int(os.environ.get("max_mer_distance", 5000));
 max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4));
 
 
-binding = { 'A': 'T', 'T': 'A',	'C': 'G', 'G': 'C',	'_': False }
-
 def get_max_consecutive_binding(mer1, mer2):
+	'''
+	Return the maximum number of consecutively binding mers
+	when comparing two different mers, using the reverse compliment.
+	'''
+
+	binding = { 'A': 'T', 
+							'T': 'A',
+							'C': 'G', 
+							'G': 'C',	
+							'_':  False
+						}
+
+  # Swap variables if the second is longer than the first
 	if len(mer2) > len(mer1):
 		mer1, mer2 = mer2, mer1
 	
