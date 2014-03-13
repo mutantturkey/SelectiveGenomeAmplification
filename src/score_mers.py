@@ -206,7 +206,7 @@ def score(combination):
 	for mer in combination:
 		bg_pts = bg_pts + bg_mers[mer].pts
 
-	if len(bg_pts()) <= 0:
+	if len(bg_pts()) <= 1:
 		bg_pts.append(0, 1, fg_genome_length)
 
 	bg_pts.sort()
@@ -241,7 +241,7 @@ def load_heterodimer_dic(selected_mers):
 		# print res, heterodimer_dic[(mer1, mer2)]
 
 def main():
-	''' 
+	'''
 	Basic worflow:
 
 	Load Top X Selective Primers
@@ -271,7 +271,6 @@ def main():
 
 	print "Populating foreground locations"
 	map(pop_fg, selected_mers)
-
 
 	print "Populating background locations"
 	map(pop_bg, selected_mers)
