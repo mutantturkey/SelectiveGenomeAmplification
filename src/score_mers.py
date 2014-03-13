@@ -105,6 +105,10 @@ def populate_locations(input_fn, mers, mer):
 	for line in strstream.stdout:
 		mers[mer].pts.append(int(line))
 
+	cmd = 'tac ' + input_fn + " | tr '[ACGT]' '[TGCA]' | strstreamone " + mer + " " + input_fn
+	strstream = Popen(cmd, stdout=PIPE, shell=True)
+	for line in strstream.stdout:
+		mers[mer].pts.append(int(line))
 
 def apply_filters(combination):
 	for mer in combination:
