@@ -110,28 +110,21 @@ def populate_locations(input_fn, mers, mer):
 	for line in strstream.stdout:
 		mers[mer].pts.append(int(line))
 
-def apply_filters(combination):
+
+def filter_mers(combination):
+	for combo in combinations(combination, 2):
+		if heterodimer_dic[combo]:
+			return True
+
 	for mer in combination:
 		for other_mer in combination:
 			if not mer == other_mer:
 				if mer in other_mer:
-					return False
+					return True
 
-	for combo in combinations(combination, 2):
-		if heterodimer_dic[combo]:
-			return False
+	return False
 
-	return True
-
-
-def score_mers(selected):
-	import time
-	# import gmpy
-
-	p = Pool(cpus)
-
-	fh = open(output_file, 'wb');
-
+def check_feasible(selected):
 	total = 0;
 	for mer in selected:
 		total += len(fg_mers[mer].pts)
@@ -141,7 +134,17 @@ def score_mers(selected):
 		print "still not meet the right max mer distance < ", max_mer_distance, "requirement."
 	
 		print total, " / ", fg_genome_length, " = ", total / fg_genome_length 
+		exit()
 
+def score_mers(selected):
+	import time
+	total_scored = 0;
+
+	check_feasible(selected)
+
+	p = Pool(cpus)
+
+	fh = open(output_file, 'wb');
 	fh.write("Combination\tScore\tFG_mean_dist\tFG_var_dist\tBG_mean_dist\tBG_var_dist\n");
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
@@ -149,6 +152,7 @@ def score_mers(selected):
 		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=8192)
 		for score_res in scores_it:
 			if score_res is not None:
+				total_scored += 1;
 				combination, scores, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist = score_res
 				fh.write(str(combination) + "\t");
 				fh.write(str(scores) + "\t");
@@ -158,23 +162,17 @@ def score_mers(selected):
 				fh.write(str(bg_variance_dist) + "\n");
 		print "size ", select_n, "took:", time.time()   - t
 
+	if(total_scored == 0):
+		print "NO RESULTS FOUND"
 
 heterodimer_dic = {}
 def score(combination):
 # input is a string of mers like 
 # ['ACCAA', 'ACCCGA', 'ACGTATA']
 
-	for combo in combinations(combination, 2):
-		if [combo] is True:
-			#return [combination, 'het']
-			return None
-
-	for mer in combination:
-		for other_mer in combination:
-			if not mer == other_mer:
-				if mer in other_mer:
-				  #return [combination, 'dup']
-					return None
+	# check if the combination passes our filters
+	if filter_mers(combination):
+		return None
 
 	# fg points
 	fg_pts = []
@@ -186,7 +184,7 @@ def score(combination):
 	fg_pts.sort()
 
 	# fg distances
-	fg_dist = np.array([abs(fg_pts[i] - fg_pts[i-1]) for i in range(1, len(fg_pts))])
+	fg_dist = np.diff(fg_pts)
 
   # return without calculating scores if any objects are higher than our max distance
 	if any(dist > max_mer_distance for dist in fg_dist):
@@ -194,7 +192,8 @@ def score(combination):
 		 return None
 
 	min_mer_distance = max(len(i) for i in combination)
-	# return without calculating scores if any mers are closer than the length of our longest mer in the combination
+	# return without calculating scores if any mers are closer than the length of
+	# our longest mer in the combination
 	if any(dist < min_mer_distance for dist in fg_dist):
 		#return [combintaion, 'max']
 		return None
@@ -206,6 +205,9 @@ def score(combination):
 
 	for mer in combination:
 		bg_pts = bg_pts + bg_mers[mer].pts
+
+	if len(bg_pts()) <= 0:
+		bg_pts.append(0, 1, fg_genome_length)
 
 	bg_pts.sort()
 
@@ -269,6 +271,7 @@ def main():
 
 	print "Populating foreground locations"
 	map(pop_fg, selected_mers)
+
 
 	print "Populating background locations"
 	map(pop_bg, selected_mers)
