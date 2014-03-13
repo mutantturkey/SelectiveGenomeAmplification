@@ -95,13 +95,15 @@ for fasta_file in $foreground $background; do
 	echo pre-processing $fasta_file
 
 	# run counts if they haven't been created 
-	rm $counts-counts
+	if [ -e $counts-counts ]; then
+		rm $counts-counts
+	fi
 	for mer in `seq $min_mer_range $max_mer_range`;	do 
 		if [ ! -e $counts-counts-$mer ]; then
 			echo checking $mer mers for $fasta_file
-			kmer_continuous_count -i $fasta_file -k $mer -l -n >> $counts-counts-$mer
+			kmer_continuous_count -c -i $fasta_file -k $mer -l -n > $counts-counts-$mer
 		else 
-			echo "$mer mers already done for $fasta_file"
+			echo "$mer mers already done for $fasta_file (assuming $fasta_file didn't change)"
 		fi
 		
 		cat $counts-counts-$mer >> $counts-counts
@@ -139,6 +141,9 @@ cat $output_directory/$current_run/`basename $background`-counts-non-melting | f
 echo "scoring mer selectivity"
 select_mers.py $output_directory/$current_run/`basename $foreground`-counts-filtered-binding \
 							 $output_directory/$current_run/`basename $background`-counts-filtered-binding > $selected || exit 1
-	
+
+cat $foreground | grep -v "^>" | tr -d '\n' >  $tmp_directory/`basename $foreground`
+cat $background | grep -v "^>" | tr -d '\n' > $tmp_directory/`basename $background`
+
 echo "scoring top mers based on selectivity"
-score_mers.py $selected <(  cat $foreground | grep -v "^>" | tr -d '\n' ) <(  cat $background | grep -v "^>" | tr -d '\n') $output_directory/$current_run/scores-output || exit 1
+score_mers.py $selected $tmp_directory/`basename $foreground` $tmp_directory/`basename $background` $output_directory/$current_run/scores-output || exit 1
