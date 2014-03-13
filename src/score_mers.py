@@ -80,9 +80,23 @@ def get_max_consecutive_binding(mer1, mer2):
 
 	return max_bind
 
+def pop_fg(mer):
+	''' helper for map function '''
+	populate_locations(fg_fasta_fn, fg_mers, mer)
+
+def pop_bg(mer):
+	''' helper for map function '''
+	populate_locations(bg_fasta_fn, bg_mers, mer)
+
+
 def populate_locations(input_fn, mers, mer):
-	''' Run the strstreamone command, and parse in the integers that are output
-			by the command, and add it to mers[mer].pts 
+	''' 
+	Run the strstreamone command, and parse in the integers that are output
+	by the command, and add it to mers[mer].pts 
+
+	strstreamone just prints the location of a string argv[1] in stdout.
+
+	We also do the reverse compliment, using tac and tr piped together.
 	'''
 
 	cmd = 'strstreamone ' + mer + " < " + input_fn
@@ -205,15 +219,15 @@ def score(combination):
 
 	return [combination, score, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist]
 
-def pop_fg(mer):
-	''' helper for map function '''
-	populate_locations(fg_fasta_fn, fg_mers, mer)
-
-def pop_bg(mer):
-	''' helper for map function '''
-	populate_locations(bg_fasta_fn, bg_mers, mer)
-
 def load_heterodimer_dic(selected_mers):
+	''' 
+	Generate a heterodimer dict which contains every possible combination of
+	selected mers, so later we can check each combination without re-running the
+	max_consecutive_binding function. 
+
+	The stored values are Booleans, True if the result is larger than acceptable.
+
+	'''
 	for (mer1, mer2) in combinations(selected_mers, 2):
 		res = get_max_consecutive_binding(mer1, mer2)
 		heterodimer_dic[(mer1, mer2)] = res > max_consecutive_binding
@@ -221,6 +235,14 @@ def load_heterodimer_dic(selected_mers):
 		# print res, heterodimer_dic[(mer1, mer2)]
 
 def main():
+	''' 
+	Basic worflow:
+
+	Load Top X Selective Primers
+	Populate Locations of Primers
+	Score Combinations For All Sizes 
+
+	'''
 	import time
 	selected = []
 	selectivity_fh = open(selectivity_fn, "r")
