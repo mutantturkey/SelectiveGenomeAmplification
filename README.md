@@ -24,7 +24,7 @@ Example Usage:
 
 For user customizable variables:
 
-    max_mer_distance=5000; max_select=6 min_mer_range=6 max_mer_range=12 \
+    max_mer_distance=5000 max_select=6 min_mer_range=6 max_mer_range=12 \
     SelectiveGenomeAmplification.sh PfalciparumGenome.fasta half.fasta 
 
 ## Customizable variables
