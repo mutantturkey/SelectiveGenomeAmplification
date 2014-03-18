@@ -145,7 +145,7 @@ def score_mers(selected):
 	p = Pool(cpus)
 
 	fh = open(output_file, 'wb');
-	fh.write("Combination\tScore\tFG_mean_dist\tFG_var_dist\tBG_mean_dist\tBG_var_dist\n");
+	fh.write("Combination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_mean_dist\tBG_var_dist\n");
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
 		t = time.time()
@@ -153,13 +153,12 @@ def score_mers(selected):
 		for score_res in scores_it:
 			if score_res is not None:
 				total_scored += 1;
-				combination, scores, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist = score_res
+				combination, scores, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
 				fh.write(str(combination) + "\t");
 				fh.write(str(scores) + "\t");
 				fh.write(str(fg_mean_dist) + "\t");
-				fh.write(str(fg_variance_dist) + "\t");
-				fh.write(str(bg_mean_dist) + "\t");
-				fh.write(str(bg_variance_dist) + "\n");
+				fh.write(str(fg_stddev_dist) + "\t");
+				fh.write(str(bg_ratio) + "\n");
 		print "size ", select_n, "took:", time.time()   - t
 
 	if(total_scored == 0):
@@ -209,24 +208,20 @@ def score(combination):
 	if len(bg_pts()) <= 1:
 		bg_pts.append(0, 1, fg_genome_length)
 
-	bg_pts.sort()
+	bg_sum = sum(bg_pts)
+	bg_ratio =  (bg_genome_length / bg_sum)
 
-	# bg distances
-	bg_dist = np.diff(bg_pts)
 
 	nb_primers = len(combination)
 	fg_mean_dist =  np.mean(fg_dist)
-	fg_variance_dist = np.var(fg_dist)
-	bg_mean_dist = np.mean(bg_dist)
-	bg_variance_dist = np.var(bg_dist)
-
+	fg_std_dist = np.std(fg_dist)
 	# this is our equation
-	score = (nb_primers * fg_mean_dist * fg_variance_dist) / ((bg_mean_dist * bg_variance_dist) + .000001)
+	score = (nb_primers * fg_mean_dist * fg_std_dist) / bg_ratio
 
-	return [combination, score, fg_mean_dist, fg_variance_dist, bg_mean_dist, bg_variance_dist]
+	return [combination, score, fg_mean_dist, fg_std_dist, bg_ratio] 
 
 def load_heterodimer_dic(selected_mers):
-	''' 
+	'''
 	Generate a heterodimer dict which contains every possible combination of
 	selected mers, so later we can check each combination without re-running the
 	max_consecutive_binding function. 
