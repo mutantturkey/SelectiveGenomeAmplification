@@ -163,6 +163,7 @@ def score_mers(selected):
 
 	if(total_scored == 0):
 		print "NO RESULTS FOUND"
+		fh.write("NO RESULTS FOUND\n");
 
 heterodimer_dic = {}
 def score(combination):
