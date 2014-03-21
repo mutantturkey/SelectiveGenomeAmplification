@@ -15,6 +15,8 @@ import pdb
 fg_mers = {}
 bg_mers = {}
 
+seq_ends = []
+
 if(len(sys.argv) == 5):
 	selectivity_fn =  sys.argv[1]
 	fg_fasta_fn    =  sys.argv[2]
@@ -181,7 +183,12 @@ def score(combination):
 	for mer in combination:
 		fg_pts = fg_pts + fg_mers[mer].pts
 
+	fg_pts = fg_pts + seq_ends 
+
 	fg_pts.sort()
+
+	if fg_pts[0] is not 0:
+		fg_pts = [0] + fg_pts
 
 	# fg distances
 	fg_dist = np.diff(fg_pts)
@@ -220,6 +227,18 @@ def score(combination):
 	score = (nb_primers * fg_mean_dist * fg_std_dist) / bg_ratio
 
 	return [combination, score, fg_mean_dist, fg_std_dist, bg_ratio] 
+
+def load_end_points(fn):
+
+	end_points = []
+
+	cmd = "sequence_end_points < " + fn
+
+	points_fh = Popen(cmd, stdout=PIPE, shell=True)
+	for line in points_fh.stdout:
+		end_points.append(int(line))
+	
+	return end_points
 
 def load_heterodimer_dic(selected_mers):
 	'''
@@ -265,6 +284,8 @@ def main():
 	selected_mers = [row[0] for row in selected]
 	# print selected_mers
 
+	print "Populating sequence end points"
+	seq_ends = load_end_points(fg_fasta_fn)
 	print "Populating foreground locations"
 	map(pop_fg, selected_mers)
 

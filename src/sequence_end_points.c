@@ -24,7 +24,6 @@ int main() {
 				for(i = 0; i < len; i++) {
 					if(buffer[i] == '>') {
 						printf("%llu\n", seq_length);
-						seq_length = 0;
 						header = true;
 						continue;
 					}   
