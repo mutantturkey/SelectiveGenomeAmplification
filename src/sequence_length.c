@@ -7,7 +7,7 @@
 #include <errno.h>
 int main() {
 
-	ssize_t len = 0;
+	size_t len = 0;
 
 	char buffer[4096];
 	bool header = false;
