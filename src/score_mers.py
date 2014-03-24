@@ -17,7 +17,7 @@ bg_mers = {}
 
 seq_ends = []
 
-if(len(sys.argv) == 5):
+if len(sys.argv) == 5:
 	selectivity_fn =  sys.argv[1]
 	fg_fasta_fn    =  sys.argv[2]
 	bg_fasta_fn    =  sys.argv[3]
@@ -27,12 +27,8 @@ if(len(sys.argv) == 5):
 	bg_genome_length = os.path.getsize(bg_fasta_fn)
 else:
 	print "please specify your inputs"
-	print "ex: score_mers.py selectivity_file fg_fasta_file bg_fasta_file"
+	print "ex: score_mers.py selectivity_file fg_fasta bg_fasta output_file"
 	exit()
-
-# empty class to fill up mer information with
-class Mer:
-	pass
 
 # import our variables
 cpus = int(os.environ.get("cpus", cpu_count()));
@@ -82,36 +78,46 @@ def get_max_consecutive_binding(mer1, mer2):
 
 	return max_bind
 
-def pop_fg(mer):
-	''' helper for map function '''
-	populate_locations(fg_fasta_fn, fg_mers, mer)
 
-def pop_bg(mer):
-	''' helper for map function '''
-	populate_locations(bg_fasta_fn, bg_mers, mer)
-
-
-def populate_locations(input_fn, mers, mer):
+def populate_locations(selected_mers, mer_dic, input_fn):
 	''' 
 	Run the strstreamone command, and parse in the integers that are output
-	by the command, and add it to mers[mer].pts 
+	by the command, and add it to mers[mer] 
 
 	strstreamone just prints the location of a string argv[1] in stdout.
 
 	We also do the reverse compliment, using tac and tr piped together.
 	'''
+	import tempfile
 
-	cmd = 'strstreamone ' + mer + " < " + input_fn
+
+	cmds = []
+	# strip file of header and delete newlines
+	cmds.append("grep -v '^>' " + input_fn  +  " | tr -d '\\n' | strstream ")
+	# reverse file, strip and delete newlines
+	cmds.append("tac " + input_fn + " | rev | grep -v '>$' | tr -d '\\n' | tr [ACGT] [TGCA] | strstream ")
 	
-	strstream = Popen(cmd, stdout=PIPE, shell=True)
-	for line in strstream.stdout:
-		mers[mer].pts.append(int(line))
+	for cmd in cmds:
+		fid, merlist_fn = tempfile.mkstemp()
 
-	cmd = 'tac ' + input_fn + " | tr '[ACGT]' '[TGCA]' | strstreamone " + mer + " " + input_fn
-	strstream = Popen(cmd, stdout=PIPE, shell=True)
-	for line in strstream.stdout:
-		mers[mer].pts.append(int(line))
+		# write our mers out to a fifi
+		merlist_fh = open(merlist_fn, 'w')
+		for mer in selected_mers:
+			print mer
+			merlist_fh.write(mer + '\n')
 
+		merlist_fh.flush()
+		# add our merlist fn to our command
+		cmd = cmd + " " + merlist_fn
+
+		strstream = Popen(cmd, stdout=PIPE, shell=True)
+		for line in strstream.stdout:
+			(mer, pos) = line.strip().split(" ")
+			mer_dic[selected_mers[int(mer)]].append(int(pos))
+
+		merlist_fh.close()
+	
+	
 
 def filter_mers(combination):
 	for combo in combinations(combination, 2):
@@ -129,8 +135,8 @@ def filter_mers(combination):
 def check_feasible(selected):
 	total = 0;
 	for mer in selected:
-		total += len(fg_mers[mer].pts)
-	if (fg_genome_length / total) > max_mer_distance:
+		total += len(fg_mers[mer])
+	if (fg_genome_length / (total + 1 )) > max_mer_distance:
 		print "even if we select all top ", max_select, 
 		print "mers disregarding any critera, and they were perfectly evenly spaced we would ",
 		print "still not meet the right max mer distance < ", max_mer_distance, "requirement."
@@ -181,7 +187,7 @@ def score(combination):
 	fg_dist = []
 
 	for mer in combination:
-		fg_pts = fg_pts + fg_mers[mer].pts
+		fg_pts = fg_pts + fg_mers[mer]
 
 	fg_pts = fg_pts + seq_ends 
 
@@ -211,7 +217,7 @@ def score(combination):
 	bg_dist = []
 
 	for mer in combination:
-		bg_pts = bg_pts + bg_mers[mer].pts
+		bg_pts = bg_pts + bg_mers[mer]
 
 	if len(bg_pts()) <= 1:
 		bg_pts.append(0, 1, fg_genome_length)
@@ -230,9 +236,10 @@ def score(combination):
 
 def load_end_points(fn):
 
-	end_points = []
+	end_points = [0]
 
 	cmd = "sequence_end_points < " + fn
+	print cmd
 
 	points_fh = Popen(cmd, stdout=PIPE, shell=True)
 	for line in points_fh.stdout:
@@ -268,29 +275,26 @@ def main():
 	selected = []
 	selectivity_fh = open(selectivity_fn, "r")
 	
-	# get our genome length
+	# load our mer list into python
+	mer_selectivity = selectivity_fh.readlines()
 
-	for row in selectivity_fh:
-		(mer, fg_count, bg_count, selectivity) = row.split()
-		fg_mers[mer] = Mer()
-		fg_mers[mer].pts = []
-		fg_mers[mer].count = fg_count
-		bg_mers[mer] = Mer()
-		bg_mers[mer].pts = []
-		bg_mers[mer].count = bg_count
-		selected.append([mer, selectivity])
-		
-	selected =	selected[-max_check:] 
-	selected_mers = [row[0] for row in selected]
-	# print selected_mers
+	# get the last max_check (it's sorted)
+	selected_mers = mer_selectivity[-max_check:]
+	selected_mers = [x.split()[0] for x in selected_mers]
+
+	# load it into our fg and bg dictionary points
+	for mer in selected_mers:
+		fg_mers[mer] = []
+		bg_mers[mer] = []
 
 	print "Populating sequence end points"
 	seq_ends = load_end_points(fg_fasta_fn)
+
 	print "Populating foreground locations"
-	map(pop_fg, selected_mers)
+	populate_locations(selected_mers, fg_mers, fg_fasta_fn)
 
 	print "Populating background locations"
-	map(pop_bg, selected_mers)
+	populate_locations(selected_mers, bg_mers, bg_fasta_fn)
 
 	print "calculating heterodimer distances"
 	load_heterodimer_dic(selected_mers)

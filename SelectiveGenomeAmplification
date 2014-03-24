@@ -129,21 +129,18 @@ echo "outputing current run parameters"
 for var in ignore_mers min_mer_range max_check cpus max_consecutive_binding max_mer_range max_select min_mer_count max_mer_distance max_melting_temp min_melting_temp foreground background; do 
  echo $var "${!var}" >> $output_directory/$current_run/parameters
 done;
+ 
+non_melting=$output_directory/$current_run/`basename $foreground`-counts-non-melting-$min_melting_temp-$max_melting_temp
+filtered_binding=$output_directory/$current_run/`basename $foreground`-counts-filtered-binding-$min_melting_temp-$max_melting_temp
 
 echo "checking if mers are within the melting range $min_melting_temp $max_melting_temp"
-cat $fg_counts | filter_melting_range $min_melting_temp $max_melting_temp > $output_directory/$current_run/`basename $foreground`-counts-non-melting  || exit 1
-cat $bg_counts | filter_melting_range $min_melting_temp $max_melting_temp > $output_directory/$current_run/`basename $background`-counts-non-melting  || exit 1
+cat $fg_counts | below_melting_temperature.py $min_melting_temp $max_melting_temp > $non_melting || exit 1
 
-echo "filtering out elements that have more consecutive binding mers than allowed by default $max_consecutive_binding"
-cat $output_directory/$current_run/`basename $foreground`-counts-non-melting | filter_max_consecutive_binding.py $max_consecutive_binding > $output_directory/$current_run/`basename $foreground`-counts-filtered-binding || exit 1
-cat $output_directory/$current_run/`basename $background`-counts-non-melting | filter_max_consecutive_binding.py $max_consecutive_binding > $output_directory/$current_run/`basename $background`-counts-filtered-binding || exit 1
+echo "filtering out elements that have more consecutive binding mers than allowed by \$max_consecutive_binding $max_consecutive_binding"
+cat $non_melting | filter_max_consecutive_binding.py $max_consecutive_binding > $filtered_binding || exit 1
 
 echo "scoring mer selectivity"
-select_mers.py $output_directory/$current_run/`basename $foreground`-counts-filtered-binding \
-							 $output_directory/$current_run/`basename $background`-counts-filtered-binding > $selected || exit 1
-
-cat $foreground | grep -v "^>" | tr -d '\n' >  $tmp_directory/`basename $foreground`
-cat $background | grep -v "^>" | tr -d '\n' > $tmp_directory/`basename $background`
+select_mers.py $non_melting $bg_counts > $selected || exit 1
 
 echo "scoring top mers based on selectivity"
-score_mers.py $selected $tmp_directory/`basename $foreground` $tmp_directory/`basename $background` $output_directory/$current_run/scores-output || exit 1
+score_wrapper.sh $selected $foreground $background $output_directory/$current_run/scores-output || exit 1
