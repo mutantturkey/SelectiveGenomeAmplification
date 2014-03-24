@@ -1,5 +1,8 @@
+#!/usr/bin/env python
 import sys
+from Bio.SeqUtils.MeltingTemp import Tm_staluc
 
+# naiive
 def in_temp_range(kmer):
 
 	A = kmer.count('A')
@@ -22,5 +25,5 @@ max_melting_temp = float(sys.argv[2])
 
 output = []
 for line in sys.stdin:
-	if in_temp_range(line.split("\t")[0]):
+	if min_melting_temp < Tm_staluc(line.split("\t")[0]) < max_melting_temp:
 		sys.stdout.write(line)
