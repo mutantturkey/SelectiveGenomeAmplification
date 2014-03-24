@@ -59,16 +59,11 @@ int main(int argc, char **argv){
 
 	int i = 0;
 
-	if(argc != 3)  {
+	if(argc != 2)  {
 		fprintf(stderr, "usage: strstream merlist.txt\n");
 		exit(EXIT_FAILURE);
 	}
-	//
-	FILE *infh = fopen(argv[2], "r");
-	if(infh == NULL) {
-		fprintf(stderr, "could not open %s\n", argv[2]);
-		exit(EXIT_FAILURE);
-	}
+
 	// load mers
 	FILE *fh = fopen(argv[1], "r");
 	if(fh == NULL) {
@@ -94,8 +89,13 @@ int main(int argc, char **argv){
 	buf = buffer;
 	start = buf + cpy;
 
-	// read into "start" (buf + cpy) from stdin
-	while((len = fread(start, 1, cpy_size, infh)) != 0) {
+	// copy our first cpy length into the first part of our buffer
+	len = fread(buffer, 1, cpy, stdin);
+	if(len == 0)
+		exit(EXIT_FAILURE);
+
+	// read into "start" (buf + cpy) from tdin
+	while((len = fread(start, 1, cpy_size, stdin)) != 0) {
 		for(i = 0; i < mer_len; i++) {
 			char *p = buffer;
 				while((p = strstr(p, mers[i])) != NULL) {
@@ -106,5 +106,6 @@ int main(int argc, char **argv){
 		memcpy(buffer, buffer + len, cpy);
 		pos = pos + len;
 	}
+
 	return 0;
 }
