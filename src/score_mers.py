@@ -219,7 +219,7 @@ def score(combination):
 	bg_counts = 0
 
 	for mer in combination:
-		bg_counts += len(bg_mers[mer])
+		bg_counts += bg_mers[mer]
 
 	if bg_counts <= 1:
 		bg_counts = 1 
@@ -284,12 +284,14 @@ def main():
 
 	# get the last max_check (it's sorted)
 	selected_mers = mer_selectivity[-max_check:]
-	selected_mers = [x.split()[0] for x in selected_mers]
 
-	# load it into our fg and bg dictionary points
+	# load it into our fg and bg counts into their dictionaries
 	for mer in selected_mers:
-		fg_mers[mer] = []
-		bg_mers[mer] = []
+		split_mer = mer.split()
+		fg_mers[split_mer[0]] = []
+		bg_mers[split_mer[0]] = int(split_mer[2])
+
+	selected_mers = [x.split()[0] for x in selected_mers]
 
 	print "Populating sequence end points"
 	global seq_ends
@@ -297,9 +299,6 @@ def main():
 
 	print "Populating foreground locations"
 	populate_locations(selected_mers, fg_mers, fg_fasta_fn)
-
-	print "Populating background locations"
-	populate_locations(selected_mers, bg_mers, bg_fasta_fn)
 
 	print "calculating heterodimer distances"
 	load_heterodimer_dic(selected_mers)
