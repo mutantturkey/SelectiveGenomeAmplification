@@ -4,10 +4,11 @@ import os
 
 from multiprocessing import Pool
 from multiprocessing import cpu_count
-from subprocess import *
+
+from subprocess import Popen
+from subprocess import PIPE
+
 from itertools  import combinations
-from itertools  import ifilter
-from itertools  import imap
 
 import numpy as np
 import pdb
@@ -96,15 +97,18 @@ def populate_locations(selected_mers, mer_dic, input_fn):
 	# strip file of header and delete newlines
 	cmds.append("grep -v '^>' " + input_fn  +  " | tr -d '\\n' | strstream ")
 	# reverse file, strip and delete newlines
-	cmds.append("tac " + input_fn + " | rev | grep -v '>$' | tr -d '\\n' | tr [ACGT] [TGCA] | strstream ")
+	cmds.append("tac " + input_fn + \
+							"| rev " \
+							"| grep -v '>$' " \
+							"| tr -d '\\n' " \
+							"| tr [ACGT] [TGCA] | strstream ")
 	
 	for cmd in cmds:
-		fid, merlist_fn = tempfile.mkstemp()
+		_, merlist_fn = tempfile.mkstemp()
 
 		# write our mers out to a fifi
 		merlist_fh = open(merlist_fn, 'w')
 		for mer in selected_mers:
-			print mer
 			merlist_fh.write(mer + '\n')
 
 		merlist_fh.flush()
@@ -121,6 +125,11 @@ def populate_locations(selected_mers, mer_dic, input_fn):
 	
 
 def filter_mers(combination):
+	'''
+	filter out mers that are either inside other mers,
+	or don't fit the heterodimer requirement.
+	'''
+
 	for combo in combinations(combination, 2):
 		if heterodimer_dic[combo]:
 			return True
@@ -204,7 +213,7 @@ def score(combination):
   # return without calculating scores if any objects are higher than our max distance
 	if any(dist > max_mer_distance for dist in fg_dist):
 		#return [combination, "max", max(fg_dist)]
-		 return None
+		return None
 
 	# bg counts 
 	bg_counts = 0
@@ -269,8 +278,6 @@ def main():
 	Score Combinations For All Sizes 
 
 	'''
-	import time
-	selected = []
 	selectivity_fh = open(selectivity_fn, "r")
 	
 	# load our mer list into python
@@ -286,6 +293,7 @@ def main():
 		bg_mers[mer] = []
 
 	print "Populating sequence end points"
+	global seq_ends
 	seq_ends = load_end_points(fg_fasta_fn)
 
 	print "Populating foreground locations"
