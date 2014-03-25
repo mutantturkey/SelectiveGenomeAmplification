@@ -31,7 +31,8 @@ else:
 	exit()
 
 # import our variables
-cpus = int(os.environ.get("cpus", cpu_count()));
+cpus             = int(os.environ.get("cpus", cpu_count()));
+debug            = int(os.environ.get("debug", False));
 min_mer_range    = int(os.environ.get("min_mer_range", 6));
 max_mer_range    = int(os.environ.get("max_mer_range", 12));
 min_mer_count    = int(os.environ.get("min_mer_count", 0));
@@ -231,9 +232,13 @@ def load_end_points(fn):
 	end_points = [0]
 
 	cmd = "sequence_end_points < " + fn
-	print cmd
+
+	if debug:
+		print "loading sequence end points"
+		print "executing: " + cmd
 
 	points_fh = Popen(cmd, stdout=PIPE, shell=True)
+
 	for line in points_fh.stdout:
 		end_points.append(int(line))
 	
