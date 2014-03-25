@@ -204,35 +204,27 @@ def score(combination):
 		#return [combination, "max", max(fg_dist)]
 		 return None
 
-	min_mer_distance = max(len(i) for i in combination)
-	# return without calculating scores if any mers are closer than the length of
-	# our longest mer in the combination
-	if any(dist < min_mer_distance for dist in fg_dist):
-		#return [combintaion, 'max']
-		return None
-
-
-	# bg points
-	bg_pts = []
-	bg_dist = []
+	# bg counts 
+	bg_counts = 0
 
 	for mer in combination:
-		bg_pts = bg_pts + bg_mers[mer]
+		bg_counts += len(bg_mers[mer])
 
-	if len(bg_pts()) <= 1:
-		bg_pts.append(0, 1, fg_genome_length)
+	if bg_counts <= 1:
+		bg_counts = 1 
 
-	bg_sum = sum(bg_pts)
-	bg_ratio =  (bg_genome_length / bg_sum)
+	bg_sum = len(bg_counts)
+	bg_ratio = (bg_genome_length / bg_sum)
 
 
 	nb_primers = len(combination)
 	fg_mean_dist =  np.mean(fg_dist)
 	fg_std_dist = np.std(fg_dist)
-	# this is our equation
-	score = (nb_primers * fg_mean_dist * fg_std_dist) / bg_ratio
 
-	return [combination, score, fg_mean_dist, fg_std_dist, bg_ratio] 
+	# this is our equation
+	mer_score = (nb_primers * fg_mean_dist * fg_std_dist) / bg_ratio
+
+	return [combination, mer_score, fg_mean_dist, fg_std_dist, bg_ratio] 
 
 def load_end_points(fn):
 
