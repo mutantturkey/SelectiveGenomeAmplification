@@ -56,6 +56,9 @@ fi
 # maximum number of mers that are consecutively binding
 : ${max_consecutive_binding=4}
 
+# fg_weight, now much to weight to give the higher bindnig primers
+: ${fg_weight=0}
+
 export ignore_mers
 export min_mer_range
 export max_mer_range
@@ -67,6 +70,8 @@ export max_mer_distance
 
 export max_melting_temp 
 export min_melting_temp 
+
+export fg_weight
 
 
 # Make our output directory

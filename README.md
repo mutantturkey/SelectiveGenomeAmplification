@@ -31,21 +31,38 @@ For user customizable variables:
 
 range of mers, min and max 
 
-C | variable | default | notes
-:---- | :---- | :---- | ---- | :----
-Y | min\_mer\_range | 6  | minimum mer size to use
-Y | max\_mer\_range | 12 | maximum mer size to use 
-Y | max\_mer\_distance | 5000 | maximum distance between mers in foreground
-N | output\_directory | $PWD/$foreground\_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta\_HumanGenome\_output.fasta/
-Y | counts\_directory | $output\_directory/.tmp | directory for counts directory
-Y | tmp\_directory=$output\_directory/.tmp | temporary files directory
-Y | max\_melting\_temp | 30° | maximum melting temp of mers
-Y | min\_melting\_temp | 0° | minimum melting temp of mers
-Y | min\_foreground\_binding\_average | 50000 | elminate mers that appear less frequently than the average  (length of foreground / # of occurances)
-Y | max\_select | 15 | maximum number of mers to pick
-Y | max\_check | 35  | maximum number of mers to select (check the top #)
-Y | ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
-Y | foreground | Not Enabled | path of foreground file
-Y | background | Not Enabled | path of background file
-Y | max\_consecutive\_binding | 4 | The maxium number of consecutive binding nucleotides in homodimer and heterodimers
+variable | default | notes
+:---- | :---- | ---- | :----
+min\_mer\_range | 6  | minimum mer size to use
+max\_mer\_range | 12 | maximum mer size to use 
+max\_mer\_distance | 5000 | maximum distance between mers in foreground
+output\_directory | $PWD/$foreground\_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta\_HumanGenome\_output.fasta/
+counts\_directory | $output\_directory/.tmp | directory for counts directory
+tmp\_directory=$output\_directory/.tmp | temporary files directory
+max\_melting\_temp | 30° | maximum melting temp of mers
+min\_melting\_temp | 0° | minimum melting temp of mers
+min\_foreground\_binding\_average | 50000 | elminate mers that appear less frequently than the average  (length of foreground / # of occurances)
+max\_select | 15 | maximum number of mers to pick
+max\_check | 35  | maximum number of mers to select (check the top #)
+ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
+foreground | Not Enabled | path of foreground file
+background | Not Enabled | path of background file
+max\_consecutive\_binding | 4 | The maxium number of consecutive binding nucleotides in homodimer and heterodimers
+fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see "equations"
 
+## Equations
+
+Here's what we are using to determine our scoring and selectivity
+
+### Selecivity
+
+Our selectivity is what we use to determine what top $max\_check mers are checked later
+on in our scoring function. Currently we use this formula:
+
+By default our fg\_weight is zero. This gives no extra weight to more
+frequently occuring mers, but can be set higher with the fg\_weight
+environmental variable if you wish to do so.
+
+    hit = abundance of primer X (ex. 'ATGTA') in background
+
+    (foreground hit / background hit) * (foreground hit ^ fg_weight)

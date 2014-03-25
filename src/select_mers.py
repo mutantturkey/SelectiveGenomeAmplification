@@ -5,6 +5,8 @@ import os
 fg_mers = {}
 bg_mers = {}
 
+fg_weight = int(os.environ.get("fg_weight", 0))
+
 if(len(sys.argv) == 3):
 	fg_count_fn =  sys.argv[1]
 	bg_count_fn =  sys.argv[2]
@@ -32,7 +34,7 @@ def select_mers(fg_mers, bg_mers):
 	fg_arr = np.array(fg_arr, dtype='f');
 	bg_arr = np.array(bg_arr, dtype='f');
 
-	selectivity = (fg_arr / bg_arr)
+	selectivity = (fg_arr / bg_arr) * (fg_arr**fg_weight)
 
 	arr = [(mers[i], fg_arr[i], bg_arr[i], selectivity[i]) for i in range(len(mers))]
 
