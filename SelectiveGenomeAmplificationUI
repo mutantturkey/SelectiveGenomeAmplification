@@ -49,7 +49,8 @@ questions = [
 
 	{ 'question': 'maximum melting temperature for mers?', 'default_str': '30c', 'variable': 'max_melting_temp' },
 	{ 'question': 'minimum melting temperature for mers?', 'default_str': '0c',  'variable': 'min_melting_temp' },
-	{ 'question': 'maximum number of consecutively binding mers in hetero and homodimers?', 'default_str': '4', 'variable': 'max_consecutive_binding' }
+	{ 'question': 'maximum number of consecutively binding mers in hetero and homodimers?', 'default_str': '4', 'variable': 'max_consecutive_binding' },
+	{ 'question': 'what extra weight you want for highgly binding primers?', 'default_str': '0', 'variable': 'fg_weight' }
 
 ]
 
