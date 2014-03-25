@@ -38,7 +38,7 @@ max\_mer\_range | 12 | maximum mer size to use
 max\_mer\_distance | 5000 | maximum distance between mers in foreground
 output\_directory | $PWD/$foreground\_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta\_HumanGenome\_output.fasta/
 counts\_directory | $output\_directory/.tmp | directory for counts directory
-tmp\_directory=$output\_directory/.tmp | temporary files directory
+tmp\_directory | $output\_directory/.tmp | temporary files directory
 max\_melting\_temp | 30° | maximum melting temp of mers
 min\_melting\_temp | 0° | minimum melting temp of mers
 min\_foreground\_binding\_average | 50000 | elminate mers that appear less frequently than the average  (length of foreground / # of occurances)
