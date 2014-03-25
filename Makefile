@@ -20,15 +20,19 @@ clean:
 	rm -vf bin/* -Rv
 
 install: all
+	# c tools
 	install -c bin/strstream $(DEST)
 	install -c bin/filter_melting_range $(DEST)
 	install -c bin/strstreamone $(DEST)
 	install -c bin/sequence_end_points $(DEST)
+	# bash scripts
 	install -c SelectiveGenomeAmplification $(DEST)
 	install -c SelectiveGenomeAmplificationUI $(DEST)
+	# python scripts
 	install -c src/select_mers.py $(DEST)
 	install -c src/score_mers.py $(DEST)
 	install -c src/score_wrapper.sh $(DEST)
-	install -c src/below_melting_temperature.py $(DEST)
+	install -c src/filter_melting_temperature.py $(DEST)
 	install -c src/filter_max_consecutive_binding.py $(DEST)
+	install -c src/filter_average_binding.py $(DEST)
 

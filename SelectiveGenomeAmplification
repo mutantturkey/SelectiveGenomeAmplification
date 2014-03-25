@@ -41,8 +41,8 @@ fi
 : ${max_melting_temp=30}
 : ${min_melting_temp=0}
 
-# minimum mer count
-: ${min_mer_count=0}
+# minimum average binding distance in the foreground
+: ${min_foreground_binding_average=50000}
 
 # maximum mers to pick
 : ${max_select=15}
@@ -62,7 +62,7 @@ export max_mer_range
 
 export max_select
 
-export min_mer_count
+export min_foreground_binding_average
 export max_mer_distance
 
 export max_melting_temp 
@@ -130,17 +130,21 @@ for var in ignore_mers min_mer_range max_check cpus max_consecutive_binding max_
  echo $var "${!var}" >> $output_directory/$current_run/parameters
 done;
  
-non_melting=$output_directory/$current_run/`basename $foreground`-counts-non-melting-$min_melting_temp-$max_melting_temp
-filtered_binding=$output_directory/$current_run/`basename $foreground`-counts-filtered-binding-$min_melting_temp-$max_melting_temp
+average_binding=$output_directory/$current_run/`basename $foreground`-counts-average-binding
+consecutive_binding=$output_directory/$current_run/`basename $foreground`-counts-consecutive-binding
+non_melting=$output_directory/$current_run/`basename $foreground`-counts-non-melting
+
+echo "checking if mers appear at least as often in the fg as the average binding site or more $min_foreground_binding_average"
+cat $fg_counts | filter_average_binding.py $foreground $min_foreground_binding_average > $average_binding || exit 1
 
 echo "checking if mers are within the melting range $min_melting_temp $max_melting_temp"
-cat $fg_counts | below_melting_temperature.py $min_melting_temp $max_melting_temp > $non_melting || exit 1
+cat $average_binding | filter_melting_temperature.py $min_melting_temp $max_melting_temp > $non_melting || exit 1
 
 echo "filtering out elements that have more consecutive binding mers than allowed by \$max_consecutive_binding $max_consecutive_binding"
-cat $non_melting | filter_max_consecutive_binding.py $max_consecutive_binding > $filtered_binding || exit 1
+cat $non_melting | filter_max_consecutive_binding.py $max_consecutive_binding > $consecutive_binding || exit 1
 
 echo "scoring mer selectivity"
-select_mers.py $non_melting $bg_counts > $selected || exit 1
+select_mers.py $consecutive_binding $bg_counts > $selected || exit 1
 
 echo "scoring top mers based on selectivity"
 score_wrapper.sh $selected $foreground $background $output_directory/$current_run/scores-output || exit 1

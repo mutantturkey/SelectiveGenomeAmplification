@@ -27,9 +27,9 @@ questions = [
 	  'default_str': '6',
 	  'variable': 'min_mer_range' },
 
-	{ 'question': 'minimum mer count you want to have for your selected mer?',
-	  'default_str': 'None',
-	  'variable': 'min_mer_count' },
+	{ 'question': 'eliminate mers that appear less frequently on average than this number ?',
+	  'default_str': '50000',
+	  'variable': 'min_foreground_binding_average' },
 
 	{ 'question': 'maximum size of mer combinations you want to search and select?',
 	  'default_str': '15',

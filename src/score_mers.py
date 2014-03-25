@@ -18,22 +18,14 @@ bg_mers = {}
 
 seq_ends = []
 
-if len(sys.argv) == 5:
-	selectivity_fn =  sys.argv[1]
-	fg_fasta_fn    =  sys.argv[2]
-	bg_fasta_fn    =  sys.argv[3]
-	output_file    =  sys.argv[4]
+fg_genome_length = 0
+bg_genome_length = 0
 
-	fg_genome_length = os.path.getsize(fg_fasta_fn)
-	bg_genome_length = os.path.getsize(bg_fasta_fn)
-else:
-	print "please specify your inputs"
-	print "ex: score_mers.py selectivity_file fg_fasta bg_fasta output_file"
-	exit()
+output_file = ""
 
 # import our variables
 cpus             = int(os.environ.get("cpus", cpu_count()))
-debug            = int(os.environ.get("debug", False))
+debug            = os.environ.get("debug", False)
 min_mer_range    = int(os.environ.get("min_mer_range", 6))
 max_mer_range    = int(os.environ.get("max_mer_range", 12))
 min_mer_count    = int(os.environ.get("min_mer_count", 0))
@@ -41,7 +33,6 @@ max_select       = int(os.environ.get("max_select", 15))
 max_check        = int(os.environ.get("max_check", 35))
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000))
 max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4))
-
 
 def get_max_consecutive_binding(mer1, mer2):
 	'''
@@ -237,6 +228,7 @@ def score(combination):
 	return [combination, mer_score, fg_mean_dist, fg_std_dist, bg_ratio] 
 
 def load_end_points(fn):
+	''' get all the points of the end of each sequence in a sample '''
 
 	end_points = [0]
 
@@ -252,6 +244,22 @@ def load_end_points(fn):
 		end_points.append(int(line))
 	
 	return end_points
+
+def get_length(fn):
+	''' get length of a genome ( number of base pairs )'''
+
+	cmd = 'grep "^>" ' + fn + " -v | tr -d '\\n' | wc -c"
+
+	if debug:
+		print "loading sequence end points"
+		print "executing: " + cmd
+	points_fh = Popen(cmd, stdout=PIPE, shell=True)
+
+	length = points_fh.stdout.readline()
+
+	length = int(length)
+
+	return length
 
 def load_heterodimer_dic(selected_mers):
 	'''
@@ -277,6 +285,23 @@ def main():
 	Score Combinations For All Sizes 
 
 	'''
+	global fg_genome_length
+	global bg_genome_length
+	global output_file
+
+	if len(sys.argv) == 5:
+		selectivity_fn =  sys.argv[1]
+		fg_fasta_fn    =  sys.argv[2]
+		bg_fasta_fn    =  sys.argv[3]
+		output_file    =  sys.argv[4]
+	else:
+		print "please specify your inputs"
+		print "ex: score_mers.py selectivity_file fg_fasta bg_fasta output_file"
+		exit()
+
+	fg_genome_length = get_length(fg_fasta_fn)
+	bg_genome_length = get_length(bg_fasta_fn)
+
 	selectivity_fh = open(selectivity_fn, "r")
 	
 	# load our mer list into python

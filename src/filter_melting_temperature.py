@@ -23,7 +23,6 @@ min_melting_temp = float(sys.argv[1])
 max_melting_temp = float(sys.argv[2])
 
 
-output = []
 for line in sys.stdin:
 	if min_melting_temp < Tm_staluc(line.split("\t")[0]) < max_melting_temp:
 		sys.stdout.write(line)

@@ -5,8 +5,6 @@ import os
 fg_mers = {}
 bg_mers = {}
 
-min_mer_count = int(os.environ.get("min_mer_count", 0));
-
 if(len(sys.argv) == 3):
 	fg_count_fn =  sys.argv[1]
 	bg_count_fn =  sys.argv[2]
@@ -58,13 +56,6 @@ def main():
 		for line in fh:
 			(mer, count) = line.split()
 			mers[mer] = int(count)
-	
-	if min_mer_count >= 1:
-		for mer in fg_mers.keys():
-			if(fg_mers[mer] < min_mer_count):
-				del fg_mers[mer]
-				if mer in bg_mers:
-					del bg_mers[mer]
 	
 	for mer in bg_mers.keys():
 		if mer not in fg_mers:
