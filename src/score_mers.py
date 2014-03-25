@@ -163,7 +163,7 @@ def score_mers(selected):
 	p = Pool(cpus)
 
 	fh = open(output_file, 'wb')
-	fh.write("Combination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_mean_dist\tBG_var_dist\n")
+	fh.write("Combination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_ratio\n")
 
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
