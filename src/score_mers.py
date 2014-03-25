@@ -224,8 +224,7 @@ def score(combination):
 	if bg_counts <= 1:
 		bg_counts = 1 
 
-	bg_sum = len(bg_counts)
-	bg_ratio = (bg_genome_length / bg_sum)
+	bg_ratio = (bg_genome_length / bg_counts)
 
 
 	nb_primers = len(combination)
