@@ -145,9 +145,24 @@ def check_feasible(selected):
 		print total, " / ", fg_genome_length, " = ", total / fg_genome_length 
 		exit()
 
+def percentage(part, whole, precision=2):
+
+	part = float(part)
+	whole = float(whole)
+
+	percent = round(part / whole * 100, precision)
+	if(percent < 10):
+		percent = " " + str(percent)
+	
+	return str(percent) + "%"
+
 def score_mers(selected):
 	import time
+
+
 	total_scored = 0
+	total_checked = 0
+	excluded = [0, 0, 0]
 
 	check_feasible(selected)
 
@@ -161,7 +176,8 @@ def score_mers(selected):
 		t = time.time()
 		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=8192)
 		for score_res in scores_it:
-			if score_res is not None:
+			total_checked += 1
+			if type(score_res) is list:
 				total_scored += 1
 				combination, score_val, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
 				fh.write(str(combination) + "\t")
@@ -169,20 +185,43 @@ def score_mers(selected):
 				fh.write(str(fg_mean_dist) + "\t")
 				fh.write(str(fg_stddev_dist) + "\t")
 				fh.write(str(bg_ratio) + "\n")
+			else:
+				excluded[score_res] += 1;
+
 		print "size ", select_n, "took:", time.time()   - t
+
+	total_reject = total_checked - total_scored
+	print ""
+	print "Reasons mers were excluded:\n"
+	print "  max distance: " + percentage(excluded[0], total_reject) + " (" + str(excluded[0]) + ")"
+	print "  max_overlaps: " + percentage(excluded[1], total_reject) + " (" + str(excluded[1]) + ")"
+	print "  heterodimers: " + percentage(excluded[2], total_reject) + " (" + str(excluded[2]) + ")"
+	print ""
+	print "  total combinations checked: ", total_checked
+	print "  total combinations scored:  ", total_scored
+	print "  percent rejected:  " + percentage(total_reject, total_checked) 
+	print ""
 
 	if(total_scored == 0):
 		print "NO RESULTS FOUND"
 		fh.write("NO RESULTS FOUND\n")
+	
 
 heterodimer_dic = {}
 def score(combination):
-# input is a string of mers like 
-# ['ACCAA', 'ACCCGA', 'ACGTATA']
+	# input is a string of mers like 
+	# ['ACCAA', 'ACCCGA', 'ACGTATA']
 
 	# check if the combination passes our filters
-	if filter_mers(combination):
-		return None
+	for combo in combinations(combination, 2):
+		if heterodimer_dic[combo]:
+			return 2
+
+	for mer in combination:
+		for other_mer in combination:
+			if not mer == other_mer:
+				if mer in other_mer:
+					return 1
 
 	# fg points
 	fg_pts = []
@@ -204,7 +243,7 @@ def score(combination):
   # return without calculating scores if any objects are higher than our max distance
 	if any(dist > max_mer_distance for dist in fg_dist):
 		#return [combination, "max", max(fg_dist)]
-		return None
+		return 0
 
 	# bg counts 
 	bg_counts = 0
