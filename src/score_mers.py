@@ -31,15 +31,15 @@ else:
 	exit()
 
 # import our variables
-cpus             = int(os.environ.get("cpus", cpu_count()));
-debug            = int(os.environ.get("debug", False));
-min_mer_range    = int(os.environ.get("min_mer_range", 6));
-max_mer_range    = int(os.environ.get("max_mer_range", 12));
-min_mer_count    = int(os.environ.get("min_mer_count", 0));
-max_select       = int(os.environ.get("max_select", 15));
-max_check        = int(os.environ.get("max_check", 35));
-max_mer_distance = int(os.environ.get("max_mer_distance", 5000));
-max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4));
+cpus             = int(os.environ.get("cpus", cpu_count()))
+debug            = int(os.environ.get("debug", False))
+min_mer_range    = int(os.environ.get("min_mer_range", 6))
+max_mer_range    = int(os.environ.get("max_mer_range", 12))
+min_mer_count    = int(os.environ.get("min_mer_count", 0))
+max_select       = int(os.environ.get("max_select", 15))
+max_check        = int(os.environ.get("max_check", 35))
+max_mer_distance = int(os.environ.get("max_mer_distance", 5000))
+max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4))
 
 
 def get_max_consecutive_binding(mer1, mer2):
@@ -66,7 +66,7 @@ def get_max_consecutive_binding(mer1, mer2):
 	# pad mer one to avoid errors
 	mer1 = mer1.ljust(mer1_len + len(mer2), "_")
 
-	max_bind = 0;
+	max_bind = 0
 	for offset in range(mer1_len):
 		consecutive = 0
 		for x in range(len(mer2)):
@@ -134,7 +134,7 @@ def filter_mers(combination):
 	return False
 
 def check_feasible(selected):
-	total = 0;
+	total = 0
 	for mer in selected:
 		total += len(fg_mers[mer])
 	if (fg_genome_length / (total + 1 )) > max_mer_distance:
@@ -147,32 +147,33 @@ def check_feasible(selected):
 
 def score_mers(selected):
 	import time
-	total_scored = 0;
+	total_scored = 0
 
 	check_feasible(selected)
 
 	p = Pool(cpus)
 
-	fh = open(output_file, 'wb');
-	fh.write("Combination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_mean_dist\tBG_var_dist\n");
+	fh = open(output_file, 'wb')
+	fh.write("Combination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_mean_dist\tBG_var_dist\n")
+
 	for select_n in range(1, max_select+1):
 		print "scoring size ", select_n,
 		t = time.time()
 		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=8192)
 		for score_res in scores_it:
 			if score_res is not None:
-				total_scored += 1;
-				combination, scores, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
-				fh.write(str(combination) + "\t");
-				fh.write(str(scores) + "\t");
-				fh.write(str(fg_mean_dist) + "\t");
-				fh.write(str(fg_stddev_dist) + "\t");
-				fh.write(str(bg_ratio) + "\n");
+				total_scored += 1
+				combination, score_val, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
+				fh.write(str(combination) + "\t")
+				fh.write(str(score_val) + "\t")
+				fh.write(str(fg_mean_dist) + "\t")
+				fh.write(str(fg_stddev_dist) + "\t")
+				fh.write(str(bg_ratio) + "\n")
 		print "size ", select_n, "took:", time.time()   - t
 
 	if(total_scored == 0):
 		print "NO RESULTS FOUND"
-		fh.write("NO RESULTS FOUND\n");
+		fh.write("NO RESULTS FOUND\n")
 
 heterodimer_dic = {}
 def score(combination):
