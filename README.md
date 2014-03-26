@@ -48,7 +48,8 @@ ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. igno
 foreground | Not Enabled | path of foreground file
 background | Not Enabled | path of background file
 max\_consecutive\_binding | 4 | The maxium number of consecutive binding nucleotides in homodimer and heterodimers
-fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see "equations"
+fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see "equations" (between 0 and 1)
+primer\_weight | 0 | How much extra weight to give to sets with a higher number of priemrs. (between 0 and 1)
 
 ## Equations
 
@@ -66,3 +67,6 @@ environmental variable if you wish to do so.
     hit = abundance of primer X (ex. 'ATGTA') in background
 
     (foreground hit / background hit) * (foreground hit ^ fg_weight)
+
+
+### Score function

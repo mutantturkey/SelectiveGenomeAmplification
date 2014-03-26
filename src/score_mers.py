@@ -34,6 +34,9 @@ max_check        = int(os.environ.get("max_check", 35))
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000))
 max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4))
 
+
+primer_weight = float(os.environ.get("primer_weight", 0))
+
 def get_max_consecutive_binding(mer1, mer2):
 	'''
 	Return the maximum number of consecutively binding mers
@@ -262,7 +265,7 @@ def score(combination):
 	fg_std_dist = np.std(fg_dist)
 
 	# this is our equation
-	mer_score = (nb_primers * fg_mean_dist * fg_std_dist) / bg_ratio
+	mer_score = (nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio
 
 	return [combination, mer_score, fg_mean_dist, fg_std_dist, bg_ratio] 
 
