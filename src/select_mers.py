@@ -5,7 +5,7 @@ import os
 fg_mers = {}
 bg_mers = {}
 
-fg_weight = int(os.environ.get("fg_weight", 0))
+fg_weight = float(os.environ.get("fg_weight", 0))
 
 if(len(sys.argv) == 3):
 	fg_count_fn =  sys.argv[1]
