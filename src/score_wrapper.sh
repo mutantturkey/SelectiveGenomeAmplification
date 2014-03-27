@@ -10,7 +10,7 @@ function clean_exit {
 }
 trap clean_exit SIGINT
 
-score_mers.py $1 $2 $3 $4 & </dev/null
+score_mers.py -s $1 -f $2 -b $3 -o $4 & </dev/null
 pid=$!
 
 wait $pid

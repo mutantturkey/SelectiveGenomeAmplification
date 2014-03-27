@@ -2,6 +2,8 @@
 import sys
 import os
 
+import argparse
+
 from multiprocessing import Pool
 from multiprocessing import cpu_count
 
@@ -26,9 +28,6 @@ output_file = ""
 # import our variables
 cpus             = int(os.environ.get("cpus", cpu_count()))
 debug            = os.environ.get("debug", False)
-min_mer_range    = int(os.environ.get("min_mer_range", 6))
-max_mer_range    = int(os.environ.get("max_mer_range", 12))
-min_mer_count    = int(os.environ.get("min_mer_count", 0))
 max_select       = int(os.environ.get("max_select", 15))
 max_check        = int(os.environ.get("max_check", 35))
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000))
@@ -115,26 +114,7 @@ def populate_locations(selected_mers, mer_dic, input_fn):
 			mer_dic[selected_mers[int(mer)]].append(int(pos))
 
 		merlist_fh.close()
-	
-	
 
-def filter_mers(combination):
-	'''
-	filter out mers that are either inside other mers,
-	or don't fit the heterodimer requirement.
-	'''
-
-	for combo in combinations(combination, 2):
-		if heterodimer_dic[combo]:
-			return True
-
-	for mer in combination:
-		for other_mer in combination:
-			if not mer == other_mer:
-				if mer in other_mer:
-					return True
-
-	return False
 
 def check_feasible(selected):
 	total = 0
@@ -159,41 +139,18 @@ def percentage(part, whole, precision=2):
 	
 	return str(percent) + "%"
 
-def score_mers(selected):
-	import time
-
-
-	total_scored = 0
-	total_checked = 0
-	excluded = [0, 0, 0]
-
-	check_feasible(selected)
-
-	p = Pool(cpus)
-
-	fh = open(output_file, 'wb')
+def write_header(fh):
 	fh.write("Combination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_ratio\n")
 
-	for select_n in range(1, max_select+1):
-		print "scoring size ", select_n,
-		t = time.time()
-		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=8192)
-		for score_res in scores_it:
-			total_checked += 1
-			if type(score_res) is list:
-				total_scored += 1
-				combination, score_val, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
-				fh.write(str(combination) + "\t")
-				fh.write(str(score_val) + "\t")
-				fh.write(str(fg_mean_dist) + "\t")
-				fh.write(str(fg_stddev_dist) + "\t")
-				fh.write(str(bg_ratio) + "\n")
-			else:
-				excluded[score_res] += 1;
+def write_result(fh, score_res):
+	combination, score_val, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
+	fh.write(str(combination) + "\t")
+	fh.write(str(score_val) + "\t")
+	fh.write(str(fg_mean_dist) + "\t")
+	fh.write(str(fg_stddev_dist) + "\t")
+	fh.write(str(bg_ratio) + "\n")
 
-		print "size ", select_n, "took:", time.time()   - t
-
-	total_reject = total_checked - total_scored
+def print_rejected(total_reject, total_checked, total_scored, excluded):
 	print ""
 	print "Reasons mers were excluded:\n"
 	print "  max distance: " + percentage(excluded[0], total_reject) + " (" + str(excluded[0]) + ")"
@@ -204,6 +161,60 @@ def score_mers(selected):
 	print "  total combinations scored:  ", total_scored
 	print "  percent rejected:  " + percentage(total_reject, total_checked) 
 	print ""
+
+def score_specific_combinations(mers):
+
+	total_scored = 0
+	total_checked = 0
+	excluded = [0, 0, 0]
+
+	p = Pool(cpus)
+
+	fh = open(output_file, 'wb')
+	write_header(fh)
+
+	score_it = p.map(score, mers)
+	for score_res in score_it:
+		if type(score_res) is list:
+			total_scored += 1
+			write_result(fh, score_res)
+		else:
+			excluded[score_res] += 1;
+	
+	total_reject = len(mers) - total_scored
+	print_rejected(total_reject, len(mers), total_scored, excluded)
+
+def score_all_combinations(selected):
+	import time
+
+	total_scored = 0
+	total_checked = 0
+	excluded = [0, 0, 0]
+
+	check_feasible(selected)
+
+	p = Pool(cpus)
+
+	fh = open(output_file, 'wb')
+	write_header(fh)
+
+	for select_n in range(1, max_select+1):
+		print "scoring size ", select_n,
+		t = time.time()
+		scores_it = p.imap_unordered(score, combinations(selected, select_n), chunksize=8192)
+		for score_res in scores_it:
+			total_checked += 1
+			if type(score_res) is list:
+				total_scored += 1
+				write_result(fh, score_res)
+			else:
+				excluded[score_res] += 1;
+
+		print "size ", select_n, "took:", time.time()   - t
+
+	total_reject = total_checked - total_scored
+	
+	print_rejected(total_reject, total_checked, total_scored, excluded)
 
 	if(total_scored == 0):
 		print "NO RESULTS FOUND"
@@ -329,52 +340,92 @@ def main():
 	'''
 	global fg_genome_length
 	global bg_genome_length
+	global seq_ends
 	global output_file
 
-	if len(sys.argv) == 5:
-		selectivity_fn =  sys.argv[1]
-		fg_fasta_fn    =  sys.argv[2]
-		bg_fasta_fn    =  sys.argv[3]
-		output_file    =  sys.argv[4]
-	else:
-		print "please specify your inputs"
-		print "ex: score_mers.py selectivity_file fg_fasta bg_fasta output_file"
+	parser = argparse.ArgumentParser(description="score mers")
+	parser.add_argument("-f", "--foreground", help="foreground fasta file", required=True)
+	parser.add_argument("-b", "--background", help="background fasta file", required=True)
+	parser.add_argument("-o", "--output", help="output fasta with UIDs in the file", required=True)
+	parser.add_argument("-s", "--selectivity-file", help="mer selectivity file generated by select_mers.py", required=False)
+	parser.add_argument("-c", "--combination-file", help="a set of combinations you want to score", required=False)
+
+	args = parser.parse_args()
+
+	if args.selectivity_file is None and args.combination_file is None:
+		print "you must either have a selectivity file or a combination file to score from"
+		exit()
+	if args.selectivity_file is not None and args.combination_file is not None:
+		print "you can only select either a selectivity file or a combination file to score from"
 		exit()
 
-	fg_genome_length = get_length(fg_fasta_fn)
-	bg_genome_length = get_length(bg_fasta_fn)
+	output_file =	args.output
 
-	selectivity_fh = open(selectivity_fn, "r")
-	
-	# load our mer list into python
-	mer_selectivity = selectivity_fh.readlines()
-
-	# get the last max_check (it's sorted)
-	selected_mers = mer_selectivity[-max_check:]
-
-	# load it into our fg and bg counts into their dictionaries
-	for mer in selected_mers:
-		split_mer = mer.split()
-		fg_mers[split_mer[0]] = []
-		bg_mers[split_mer[0]] = int(split_mer[2])
-
-	selected_mers = [x.split()[0] for x in selected_mers]
+	print "Getting genome length"
+	fg_genome_length = get_length(args.foreground)
+	bg_genome_length = get_length(args.background)
 
 	print "Populating sequence end points"
-	global seq_ends
-	seq_ends = load_end_points(fg_fasta_fn)
+	seq_ends = load_end_points(args.foreground)
 
-	print "Populating foreground locations"
-	populate_locations(selected_mers, fg_mers, fg_fasta_fn)
 
-	print "calculating heterodimer distances"
-	load_heterodimer_dic(selected_mers)
+	if(args.selectivity_file is not None):
+	  
+		print "Scoring all mer combinations"
 
-	print "scoring mer combinations"
-	score_mers(selected_mers)
+		selectivity_fh = open(args.selectivity_file, "r")
+	
+		# load our mer list into python
+		mer_selectivity = selectivity_fh.readlines()
+
+		# get the last max_check (it's sorted)
+		selected_mers = mer_selectivity[-max_check:]
+
+		# load it into our fg and bg counts into their dictionaries
+		for mer in selected_mers:
+			split_mer = mer.split()
+			fg_mers[split_mer[0]] = []
+			bg_mers[split_mer[0]] = int(split_mer[2])
+
+		selected_mers = [x.split()[0] for x in selected_mers]
+
+		print "Populating foreground locations"
+		populate_locations(selected_mers, fg_mers, args.foreground)
+
+		print "calculating heterodimer distances"
+		load_heterodimer_dic(selected_mers)
+
+		print "scoring mer combinations"
+		score_all_combinations(selected_mers)
+	
+	else:
+		print "Scoring specific mer combinations"
+
+		combinations = []
+
+		combination_fh = open(args.combination_file, "r")
+		for line in combination_fh:
+			mers = line.split()
+			combinations.append(mers)
+			for mer in mers:
+				fg_mers[mer] = []
+				bg_mers[mer] = []
+
+		print "calculating heterodimer distances"
+		load_heterodimer_dic(fg_mers.keys())
+
+		print "Populating foreground locations"
+		populate_locations(fg_mers.keys(), fg_mers, args.foreground)
+
+		print "Populating background locations"
+		populate_locations(fg_mers.keys(), bg_mers, args.background)
+
+		for mer in bg_mers:
+			bg_mers[mer] = len(bg_mers[mer])
+
+		score_specific_combinations(combinations)
 
 	print "output_file:", output_file
-	
 
 if __name__ == "__main__":
 	sys.exit(main())

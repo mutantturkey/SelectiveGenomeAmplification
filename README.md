@@ -3,6 +3,9 @@ SelectiveGenomeAmplification
 
 PI: http://brisson.bio.upenn.edu/
 
+
+
+## Requirements
 To use this you'll need:
 
  - A unix environment
@@ -10,31 +13,69 @@ To use this you'll need:
  - bash or compliant shell.
  
  
-Setup:
+## Setup
 
     git clone git@github.com:mutantturkey/SelectiveGenomeAmplification.git
     cd SelectiveGenomeAmplification
     make
     sudo make install
 
-Example Usage:
+## Usage Examples
+Standard use of (SGA) SelectiveGenomeAmplification is easy. it takes two arguments,
+the foreground and background
+
 
     SelectiveGenomeAmplification PfalciparumGenome.fasta HumanGenome.fasta;
     less PfalciparumGenome_HumanGenome/final_mers
 
-For user customizable variables:
+SGA allows for many tunable parameters, which are all explained in the chart
+below.  For user customizable variables, they need to be passed in as
+environmental variables like so:
 
     max_mer_distance=5000 max_select=6 min_mer_range=6 max_mer_range=12 \
     SelectiveGenomeAmplification.sh PfalciparumGenome.fasta half.fasta 
 
+SGA also comes with a easy to use user prompt called SelectiveGenomeAmplificationUI.
+It allows for a less expereienced user to use
+SGA without issue.
+
+### Running individual steps
 
 By default SelectiveGenomeAmplification runs all four steps, but you can
-specify the program to run other steps, like score in this example. 
+specify the program to run other steps, like in these examples.
 
     current_run=run_1 SelectiveGenomeAmplification target.fasta bg.fasta score
 
+    current_run=run_1 SelectiveGenomeAmplification target.fasta bg.fasta select score
+
+    current_run=run_1 SelectiveGenomeAmplification target.fasta bg.fasta 3 4 
+
+valid steps are these:
+
+- count (1)
+- filter (2)
+- select (3)
+- score (4)
+
 This function does not try to be smart, so use it wisely
     
+
+### Manually scoring mer combinations
+
+Users can manually score combinations of mers they choose using the
+score\_mers.py script.
+
+    score_mers.py -f foreground.fa -b background.fa -c combination file -o output
+
+
+The combination file should look like this:
+
+    ACGATATAT TACATAGA TATATATAT ACGTACCAT ATATTA
+    AAATTATCAGT ATACATA ATATACAT ATATACATA ACATA
+		ATATACATA ATCATGATA CCAGATACATAT
+
+each row is combination to be scored.
+
 ## Customizable variables
 
 range of mers, min and max 
@@ -45,7 +86,7 @@ current\_run | Not Enabled | specify the run you want to run steps on
 min\_mer\_range | 6  | minimum mer size to use
 max\_mer\_range | 12 | maximum mer size to use 
 max\_mer\_distance | 5000 | maximum distance between mers in foreground
-output\_directory | $PWD/$foreground\_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta\_HumanGenome\_output.fasta/
+output\_directory | $foreground\_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta\_HumanGenome\_output.fasta/
 counts\_directory | $output\_directory/.tmp | directory for counts directory
 tmp\_directory | $output\_directory/.tmp | temporary files directory
 max\_melting\_temp | 30° | maximum melting temp of mers
