@@ -197,7 +197,7 @@ def score_mers(selected):
 	print ""
 	print "Reasons mers were excluded:\n"
 	print "  max distance: " + percentage(excluded[0], total_reject) + " (" + str(excluded[0]) + ")"
-	print "  max_overlaps: " + percentage(excluded[1], total_reject) + " (" + str(excluded[1]) + ")"
+	print "  mers overlap: " + percentage(excluded[1], total_reject) + " (" + str(excluded[1]) + ")"
 	print "  heterodimers: " + percentage(excluded[2], total_reject) + " (" + str(excluded[2]) + ")"
 	print ""
 	print "  total combinations checked: ", total_checked

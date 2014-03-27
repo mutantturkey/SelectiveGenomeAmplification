@@ -19,7 +19,7 @@ Setup:
 
 Example Usage:
 
-    selectiveGenomeAmplification PfalciparumGenome.fasta HumanGenome.fasta;
+    SelectiveGenomeAmplification PfalciparumGenome.fasta HumanGenome.fasta;
     less PfalciparumGenome_HumanGenome/final_mers
 
 For user customizable variables:
@@ -27,12 +27,21 @@ For user customizable variables:
     max_mer_distance=5000 max_select=6 min_mer_range=6 max_mer_range=12 \
     SelectiveGenomeAmplification.sh PfalciparumGenome.fasta half.fasta 
 
+
+By default SelectiveGenomeAmplification runs all four steps, but you can
+specify the program to run other steps, like score in this example. 
+
+    current_run=run_1 SelectiveGenomeAmplification target.fasta bg.fasta score
+
+This function does not try to be smart, so use it wisely
+    
 ## Customizable variables
 
 range of mers, min and max 
 
 variable | default | notes
 :---- | :---- | ---- | :----
+current\_run | Not Enabled | specify the run you want to run steps on
 min\_mer\_range | 6  | minimum mer size to use
 max\_mer\_range | 12 | maximum mer size to use 
 max\_mer\_distance | 5000 | maximum distance between mers in foreground
