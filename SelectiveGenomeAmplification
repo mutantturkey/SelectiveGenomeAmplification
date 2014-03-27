@@ -1,5 +1,37 @@
 #!/usr/bin/env bash
 
+# arguments:
+
+# check_mers filename
+check_mers() {
+
+	local fasta_file="$1"
+	local counts="$2"
+	local mer=0
+
+	echo "  counting mers in $fasta_file"
+
+	#  remove the counts file so we can concatenate
+	if [[ -e "$counts"-counts ]]; then
+		echo "    removing $counts-counts"
+		rm "$counts"-counts
+	fi
+
+	# check each mer size and process if not already run
+	for (( mer = min_mer_range; mer <= max_mer_range; mer++)) ; do 
+		if [[ ! -e "$counts"-counts-"$mer" ]]; then
+			echo "    checking $mer mers for $fasta_file"
+			kmer_continuous_count -c -i "$fasta_file" -k "$mer" -l -n > "$counts"-counts-"$mer" || exit 1
+		else 
+			echo "    $mer-mers already done for $fasta_file (assuming no change)"
+		fi
+		
+		# concatentate 
+		cat "$counts"-counts-"$mer" >> "$counts"-counts
+
+	done
+
+}
 
 all=run
 # Parse in our arguments
@@ -90,6 +122,9 @@ done
 
 # mers to specifically IGNORE, space delimited
 : ${ignore_mers=''}
+
+# IGNORE all mers that are in these files, space delimited
+: ${ignore_all_mers_from_files}
 
 # maximum number of mers that are consecutively binding
 : ${max_consecutive_binding=4}
@@ -187,32 +222,8 @@ if [[ -n "$step_mers" ]] || [[ -n "$all" ]]; then
 	# to continue this project you need to use the current run.
 
 	echo "Step 1: counting primers in foreground and background"
-
-	for fasta_file in "$foreground" "$background"; do
-
-		counts="$counts_directory"/$(basename "$fasta_file")
-
-		echo "counting mers in $fasta_file"
-
-		# check each mer size and process if not already run
-		for (( mer = min_mer_range; mer <= max_mer_range; mer++)) ; do 
-			if [[ ! -e "$counts"-counts-"$mer" ]]; then
-				echo "checking $mer mers for $fasta_file (assuming $fasta_file didn't change)"
-				kmer_continuous_count -c -i "$fasta_file" -k "$mer" -l -n > "$counts"-counts-"$mer" || exit 1
-			else 
-				echo "$mer mers already done for $fasta_file"
-			fi
-
-		#  remove the counts file so we can concatenate
-		if [[ -e "$counts"-counts ]]; then
-			rm "$counts"-counts
-		fi
-			
-		# concatentate 
-		cat "$counts"-counts-"$mer" >> "$counts"-counts
-		
-		done
-	done
+	check_mers $foreground "$counts_directory"/$(basename "$foreground")
+	check_mers $background "$counts_directory"/$(basename "$background")
 fi
 
 if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
@@ -222,22 +233,43 @@ if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
 	fi
 	echo "Step 2: Filtering mer combinations based on parameters"
 
+
 	# remove ignored mers
 	if [[ "$ignore_mers" ]]; then
-		echo "removing ignored mers: " + "$ignore_mers"
+		echo "  removing ignored mers: " + "$ignore_mers"
 		for mer in $ignore_mers; do
 			sed -i '/^'"$mer"'\t/d' "$fg_counts"
-			sed -i '/^'"$mer"'\t/d' "$bg_counts"
 		done
 	fi
 
-	echo "checking if mers appear at least as often in the fg as the average binding site or more $min_foreground_binding_average"
+	# remove ignored mers
+	if [[ "$ignore_all_mers_from_files" ]]; then
+		for ignore_file in $ignore_all_mers_from_files; do
+
+			if [[ -f "$ignore_file" ]]; then 
+				echo "  Removing ignored mers from: $ignore_file"
+
+				counts="$counts_directory/ignore-"$(basename "$ignore_file")
+				check_mers "$ignore_file" "$counts"
+
+				while read mer_line; do
+						mer=$(echo "$mer_line" | sed -e 's/\t.*//g')
+						sed -i '/^'"$mer"'\t/d' "$fg_counts"
+					done < $counts-counts
+			else 
+				echo "  $ignore_file not found, continuing..."
+			fi
+
+		done
+	fi
+
+	echo "  checking if mers appear at least as often in the fg as the average binding site or more $min_foreground_binding_average"
 	filter_average_binding.py "$foreground" "$min_foreground_binding_average" < "$fg_counts"  > "$average_binding" || exit 1
 
-	echo "checking if mers are within the melting range $min_melting_temp $max_melting_temp"
+	echo "  checking if mers are within the melting range $min_melting_temp $max_melting_temp"
 	filter_melting_temperature.py "$min_melting_temp" "$max_melting_temp" < "$average_binding" > "$non_melting" || exit 1
 
-	echo "filtering out elements that have more consecutive binding mers than allowed by \$max_consecutive_binding $max_consecutive_binding"
+	echo "  filtering out elements that have more consecutive binding mers than allowed by \$max_consecutive_binding $max_consecutive_binding"
 	filter_max_consecutive_binding.py "$max_consecutive_binding" < "$non_melting" > "$consecutive_binding" || exit 1
 fi
 
