@@ -18,6 +18,8 @@ import pdb
 fg_mers = {}
 bg_mers = {}
 
+heterodimer_dic = {}
+
 seq_ends = []
 
 fg_genome_length = 0
@@ -32,8 +34,6 @@ max_select       = int(os.environ.get("max_select", 15))
 max_check        = int(os.environ.get("max_check", 35))
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000))
 max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4))
-
-
 primer_weight = float(os.environ.get("primer_weight", 0))
 
 def get_max_consecutive_binding(mer1, mer2):
@@ -114,6 +114,56 @@ def populate_locations(selected_mers, mer_dic, input_fn):
 			mer_dic[selected_mers[int(mer)]].append(int(pos))
 
 		merlist_fh.close()
+
+
+def load_end_points(fn):
+	''' get all the points of the end of each sequence in a sample '''
+
+	end_points = [0]
+
+	cmd = "sequence_end_points < " + fn
+
+	if debug:
+		print "loading sequence end points"
+		print "executing: " + cmd
+
+	points_fh = Popen(cmd, stdout=PIPE, shell=True)
+
+	for line in points_fh.stdout:
+		end_points.append(int(line))
+	
+	return end_points
+
+def get_length(fn):
+	''' get length of a genome ( number of base pairs )'''
+
+	cmd = 'grep "^>" ' + fn + " -v | tr -d '\\n' | wc -c"
+
+	if debug:
+		print "loading sequence end points"
+		print "executing: " + cmd
+	points_fh = Popen(cmd, stdout=PIPE, shell=True)
+
+	length = points_fh.stdout.readline()
+
+	length = int(length)
+
+	return length
+
+def load_heterodimer_dic(selected_mers):
+	'''
+	Generate a heterodimer dict which contains every possible combination of
+	selected mers, so later we can check each combination without re-running the
+	max_consecutive_binding function. 
+
+	The stored values are Booleans, True if the result is larger than acceptable.
+
+	'''
+	for (mer1, mer2) in combinations(selected_mers, 2):
+		res = get_max_consecutive_binding(mer1, mer2)
+		heterodimer_dic[(mer1, mer2)] = res > max_consecutive_binding
+		heterodimer_dic[(mer2, mer1)] = res > max_consecutive_binding
+		# print res, heterodimer_dic[(mer1, mer2)]
 
 
 def check_feasible(selected):
@@ -221,7 +271,6 @@ def score_all_combinations(selected):
 		fh.write("NO RESULTS FOUND\n")
 	
 
-heterodimer_dic = {}
 def score(combination):
 	# input is a string of mers like 
 	# ['ACCAA', 'ACCCGA', 'ACGTATA']
@@ -279,55 +328,6 @@ def score(combination):
 	mer_score = (nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio
 
 	return [combination, mer_score, fg_mean_dist, fg_std_dist, bg_ratio] 
-
-def load_end_points(fn):
-	''' get all the points of the end of each sequence in a sample '''
-
-	end_points = [0]
-
-	cmd = "sequence_end_points < " + fn
-
-	if debug:
-		print "loading sequence end points"
-		print "executing: " + cmd
-
-	points_fh = Popen(cmd, stdout=PIPE, shell=True)
-
-	for line in points_fh.stdout:
-		end_points.append(int(line))
-	
-	return end_points
-
-def get_length(fn):
-	''' get length of a genome ( number of base pairs )'''
-
-	cmd = 'grep "^>" ' + fn + " -v | tr -d '\\n' | wc -c"
-
-	if debug:
-		print "loading sequence end points"
-		print "executing: " + cmd
-	points_fh = Popen(cmd, stdout=PIPE, shell=True)
-
-	length = points_fh.stdout.readline()
-
-	length = int(length)
-
-	return length
-
-def load_heterodimer_dic(selected_mers):
-	'''
-	Generate a heterodimer dict which contains every possible combination of
-	selected mers, so later we can check each combination without re-running the
-	max_consecutive_binding function. 
-
-	The stored values are Booleans, True if the result is larger than acceptable.
-
-	'''
-	for (mer1, mer2) in combinations(selected_mers, 2):
-		res = get_max_consecutive_binding(mer1, mer2)
-		heterodimer_dic[(mer1, mer2)] = res > max_consecutive_binding
-		heterodimer_dic[(mer2, mer1)] = res > max_consecutive_binding
-		# print res, heterodimer_dic[(mer1, mer2)]
 
 def main():
 	'''
