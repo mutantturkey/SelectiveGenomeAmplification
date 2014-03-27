@@ -190,11 +190,12 @@ def percentage(part, whole, precision=2):
 	return str(percent) + "%"
 
 def write_header(fh):
-	fh.write("Combination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_ratio\n")
+	fh.write("nb_primers\tCombination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_ratio\n")
 
 def write_result(fh, score_res):
 	combination, score_val, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
-	fh.write(str(combination) + "\t")
+	fh.write(str(len(combination)) + "\t")
+	fh.write(' '.join(combination) + "\t")
 	fh.write(str(score_val) + "\t")
 	fh.write(str(fg_mean_dist) + "\t")
 	fh.write(str(fg_stddev_dist) + "\t")
