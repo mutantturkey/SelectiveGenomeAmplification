@@ -10,16 +10,16 @@ PI: http://brisson.bio.upenn.edu/
 * [Example Usage](#example-usage)
   * [SGA User Interface](#sga-user-interface)
   * [Setting Tunable Parameters](#setting-tunable-parameters)
-  * [Running individual Steps](#running-individual-steps)
-  * [Manually scoring specific mer combinations](#manually-scoring-specific-mer-combinations-from-file)
-  * [Manually score all combinations from file](#manually-score-all-combinations-from-file)
+  * [Running Individual Steps](#running-individual-steps)
+  * [Manually Scoring Specific Mer Combinations From List ](#manually-scoring-specific-mer-combinations-from-list)
+  * [Manually Score All Combinations From List](#manually-score-all-combinations-from-list)
 * [Table of Tunable Parameters](#tunable-parameters)
 * [Equations](#equations)
   * [Mer Selectivity](#mer-selectivity)
   * [Scoring Equation](#score-function)
 * [Output](#output)
-  * [Select Mers](#select_mers.py-output)
-  * [Score Mers](#score_mers.py-output)
+  * [Select Mers](#select_merspy-output)
+  * [Score Mers](#score_merspy-output)
   
 ## Requirements
 To use this you'll need:
@@ -60,7 +60,7 @@ SGA without issue. to run this all you need to do is run SelectiveGenomeAmiplifc
     Would you like to output your inserted variables to a string you can later paste? (Y/N/Default=y): n
     Run SelectiveGenomeAmplification? (Y/N/Default=y): y
 
-### Setting Tunable Variables
+### Setting Tunable Parameters
 
 SGA allows for many tunable parameters, which are all explained in the chart
 below.  For user customizable variables, they need to be passed in as
@@ -90,7 +90,7 @@ valid steps are these:
 
 This function does not try to be smart, so use it wisely.
 
-### Manually scoring specific mer combinations from file
+### Manually scoring specific mer combinations from list
 
 Users can manually score combinations of mers they choose using the
 score\_mers.py script.
@@ -107,7 +107,8 @@ The combination file should look like this:
 each row is combination to be scored.
 
 
-### Manually score all combinations from file
+### Manually score all combinations from list
+
 Users can manually score all  combinations of mers they choose using the
 score\_mers.py script.
 
