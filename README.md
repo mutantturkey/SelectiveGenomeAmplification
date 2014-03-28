@@ -57,8 +57,7 @@ valid steps are these:
 - select (3)
 - score (4)
 
-This function does not try to be smart, so use it wisely
-    
+This function does not try to be smart, so use it wisely.
 
 ### Manually scoring specific mer combinations from file
 
@@ -141,3 +140,33 @@ environmental variable if you wish to do so.
 
 
 ### Score function
+
+The scoring function is this:
+
+    fg_pts = all the points of each mer in the combination, and sequence ends4
+		fg_mean_dist = mean distance between each point in fg_pts
+		fg_stddev = standard deviation of distance between each point in fg_pts
+
+		nb_primers = number of primers in a combination
+		primer_weight = extra weight for sets with higher primers
+
+		bg_ratio = length of background / number of times primer was in background
+
+    mer_score = (nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio
+
+## Output
+
+The file structure outputted by default is this:
+		$foreground_$background/	
+		└── run_1 # current_run
+		    ├── filter # filter folder for filtering steps
+		    │   ├── 1-$foreground-ignore-mers
+		    │   ├── 2-$foreground-ignore-all-mers
+		    │   ├── 3-$foreground-average-binding
+		    │   ├── 4-$foreground-non-melting
+		    │   └── 5-$foreground-consecutive-binding
+		    ├── $foreground-filtered-counts # final filtered mers used for selected_mers.py
+		    ├── parameters # parameters used in the run
+		    ├── selected-mers # final filtered mers used for selected_mers.py
+		    └── scores-output # file outputted by score_mers.py
+
