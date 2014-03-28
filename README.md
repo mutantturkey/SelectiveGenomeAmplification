@@ -27,7 +27,7 @@ To use this you'll need:
  - A Unix environment
  - kmer_total_count, a kmer counter available here: http://github.com/mutantturkey/dna-utils/
  - bash or compliant shell.
- 
+ - python 2.7.x
  
 ## Setup
 
