@@ -60,7 +60,7 @@ valid steps are these:
 This function does not try to be smart, so use it wisely
     
 
-### Manually scoring mer combinations
+### Manually scoring specific mer combinations from file
 
 Users can manually score combinations of mers they choose using the
 score\_mers.py script.
@@ -75,6 +75,26 @@ The combination file should look like this:
 		ATATACATA ATCATGATA CCAGATACATAT
 
 each row is combination to be scored.
+
+
+### Manually score all combinations from file
+Users can manually score all  combinations of mers they choose using the
+score\_mers.py script.
+
+    score_mers.py -f foreground.fa -b background.fa -m mer file -o output
+
+
+The mer file should look like this:
+
+    ATATAT
+		TACATA
+		TACATAGCA
+		TATAGAATAC
+		CGTAGATA
+		TAGAAT
+
+each row is a seperate mer. do not put multiple mers on one line.
+
 
 ## Customizable variables
 
