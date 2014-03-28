@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 
+set -e
 # arguments:
 
+# check_non_empty
+check_non_empty() {
+	if [[ ! -s $1 ]]; then
+		echo "Warning: no mers remain after the '$2' filter!"
+		echo "Exiting..."
+		exit 1
+	fi
+}
 # check_mers filename
 check_mers() {
 
@@ -183,12 +192,15 @@ bg_basename=$(basename "$background")
 
 fg_counts=$counts_directory/$fg_basename-counts
 bg_counts=$counts_directory/$bg_basename-counts
+
+final_fg_counts=$output_directory/$current_run/$fg_basename-filtered-counts
 selected=$output_directory/$current_run/selected-mers
 
-	 
-average_binding=$output_directory/$current_run/$fg_basename-counts-average-binding
-non_melting=$output_directory/$current_run/$fg_basename-counts-non-melting
-consecutive_binding=$output_directory/$current_run/$fg_basename-counts-consecutive-binding
+ignore_mers_counts="$output_directory/$current_run/filter/1-$fg_basename-ignore-mers"
+ignore_all_mers_counts="$output_directory/$current_run/filter/2-$fg_basename-ignore-all-mers"
+average_binding="$output_directory/$current_run/filter/3-$fg_basename-average-binding"
+non_melting="$output_directory/$current_run/filter/4-$fg_basename-non-melting"
+consecutive_binding="$output_directory/$current_run/filter/5-$fg_basename-consecutive-binding"
 
 # Make our output directory
 if [[ ! -d "$output_directory" ]]; then
@@ -210,8 +222,13 @@ if [[ ! -d $output_directory/$current_run ]]; then
 	mkdir "$output_directory"/"$current_run" 
 fi
 
+# Make our filter directory 
+if [[ ! -d "$output_directory/$current_run/filter" ]]; then
+	mkdir "$output_directory/$current_run/filter"
+fi
+
 echo "Outputting current run parameters"
-	for var in ignore_mers min_mer_range max_mer_range max_check cpus max_consecutive_binding max_select min_foreground_binding_average max_mer_distance min_melting_temp max_melting_temp foreground background; do 
+	for var in ignore_mers ignore_all_mers_from_files min_mer_range max_mer_range max_check cpus max_consecutive_binding max_select min_foreground_binding_average max_mer_distance min_melting_temp max_melting_temp foreground background; do 
 	echo "$var" "${!var}" >> "$output_directory"/"$current_run"/parameters
 done;
 
@@ -222,8 +239,8 @@ if [[ -n "$step_mers" ]] || [[ -n "$all" ]]; then
 	# to continue this project you need to use the current run.
 
 	echo "Step 1: counting primers in foreground and background"
-	check_mers $foreground "$counts_directory"/$(basename "$foreground")
-	check_mers $background "$counts_directory"/$(basename "$background")
+	check_mers "$foreground" "$counts_directory/$(basename "$foreground")"
+	check_mers "$background" "$counts_directory/$(basename "$background")"
 fi
 
 if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
@@ -231,55 +248,64 @@ if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
 		echo "Error: you need to run your count step before filtration"
 		exit
 	fi
-	echo "Step 2: Filtering mer combinations based on parameters"
+	echo "Step 2: filtering mers"
 
 
+	cp "$fg_counts" "$ignore_mers_counts"
 	# remove ignored mers
 	if [[ "$ignore_mers" ]]; then
-		echo "  removing ignored mers: " + "$ignore_mers"
+		echo "  filtering explicitly ignored mers: $ignore_mers"
 		for mer in $ignore_mers; do
-			sed -i '/^'"$mer"'\t/d' "$fg_counts"
+			sed -i '/^'"$mer"'\t/d' "$ignore_mers_counts"
 		done
 	fi
+	check_non_empty "$ignore_mers_counts" "ignore mers" 
 
+	cp "$ignore_mers_counts" "$ignore_all_mers_counts"
 	# remove ignored mers
 	if [[ "$ignore_all_mers_from_files" ]]; then
 		for ignore_file in $ignore_all_mers_from_files; do
 
 			if [[ -f "$ignore_file" ]]; then 
-				echo "  Removing ignored mers from: $ignore_file"
+				echo "  filtering ignored mers from: $ignore_file"
 
 				counts="$counts_directory/ignore-"$(basename "$ignore_file")
 				check_mers "$ignore_file" "$counts"
 
 				while read mer_line; do
 						mer=$(echo "$mer_line" | sed -e 's/\t.*//g')
-						sed -i '/^'"$mer"'\t/d' "$fg_counts"
-					done < $counts-counts
+						sed -i '/^'"$mer"'\t/d' "$ignore_all_mers_counts"
+					done < "$counts-counts"
 			else 
 				echo "  $ignore_file not found, continuing..."
 			fi
 
 		done
 	fi
+	check_non_empty "$ignore_all_mers_counts" "ignore all mers from file "
+	
+	echo "  filtering mers that appear less frequently than the average binding site distance ($min_foreground_binding_average)"
+	filter_average_binding.py "$ignore_all_mers_counts" "$min_foreground_binding_average" < "$fg_counts"  > "$average_binding" || exit 1
+	check_non_empty "$average_binding" "average binding"
 
-	echo "  checking if mers appear at least as often in the fg as the average binding site or more $min_foreground_binding_average"
-	filter_average_binding.py "$foreground" "$min_foreground_binding_average" < "$fg_counts"  > "$average_binding" || exit 1
-
-	echo "  checking if mers are within the melting range $min_melting_temp $max_melting_temp"
+	echo "  filtering mers that are not in the melting range ($min_melting_temp-$max_melting_temp)"
 	filter_melting_temperature.py "$min_melting_temp" "$max_melting_temp" < "$average_binding" > "$non_melting" || exit 1
+	check_non_empty "$non_melting" "melting temperature"
 
-	echo "  filtering out elements that have more consecutive binding mers than allowed by \$max_consecutive_binding $max_consecutive_binding"
+	echo "  filtering mers that have more consecutive binding mers than allowed ($max_consecutive_binding)"
 	filter_max_consecutive_binding.py "$max_consecutive_binding" < "$non_melting" > "$consecutive_binding" || exit 1
+	check_non_empty "$consecutive_binding" "consecutive binding"
+
+	cp $consecutive_binding $final_fg_counts
 fi
 
 if [[ -n "$step_select" ]] || [[ -n "$all" ]]; then
-	if [[ ! -f "$consecutive_binding" ]]; then
+	if [[ ! -f "$final_fg_counts" ]]; then
 		echo "Error: you need to run your filtration step before selection"
 		exit
 	fi
 	echo "Step 3: Scoring mer selectivity"
-	select_mers.py "$consecutive_binding" "$bg_counts" > "$selected" || exit 1
+	select_mers.py "$final_fg_counts" "$bg_counts" > "$selected" || exit 1
 fi
 
 if [[ -n "$step_score" ]] || [[ -n "$all" ]]; then
@@ -289,5 +315,5 @@ if [[ -n "$step_score" ]] || [[ -n "$all" ]]; then
 	fi
 
 	echo "Step 4: Scoring top mers based on selectivity"
-	score_wrapper.sh "$selected" "$foreground" "$background" "$output_directory"/"$current_run"/scores-output || exit 1
+	score_wrapper.sh "$selected" "$foreground" "$background" "$output_directory/$current_run/scores-output" || exit 1
 fi

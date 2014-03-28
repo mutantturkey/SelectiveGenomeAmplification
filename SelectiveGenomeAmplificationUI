@@ -43,6 +43,10 @@ questions = [
 	 'default_str': "None",
 	 'variable': 'ignore_mers'},
 
+	{'question': 'Enter files to ignore all mers from? (space seperated)',
+	 'default_str': "None",
+	 'variable': 'ignore_all_mers_from_files'},
+
 	{ 'question': 'maximum distance between mers in the final selection?',
 	  'default_str': "5000 bases",
 	  'variable': 'max_mer_distance' },
