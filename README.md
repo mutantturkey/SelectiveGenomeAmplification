@@ -3,12 +3,28 @@ SelectiveGenomeAmplification
 
 PI: http://brisson.bio.upenn.edu/
 
+## Table of Contents
 
-
+* [Requirements](#requirements)
+* [Setup](#setup)
+* [Example Usage](#example-usage)
+  * [SGA User Interface](#sga-user-interface)
+  * [Setting Tunable Parameters](#setting-tunable-parameters)
+  * [Running individual Steps](#running-individual-steps)
+  * [Manually scoring specific mer combinations](#manually-scoring-specific-mer-combinations-from-file)
+  * [Manually score all combinations from file](#manually-score-all-combinations-from-file)
+* [Table of Tunable Parameters](#tunable-parameters)
+* [Equations](#equations)
+  * [Mer Selectivity](#mer-selectivity)
+  * [Scoring Equation](#score-function)
+* [Output](#output)
+  * [Select Mers](#select_mers.py-output)
+  * [Score Mers](#score_mers.py-output)
+  
 ## Requirements
 To use this you'll need:
 
- - A Uenix environment
+ - A Unix environment
  - kmer_total_count, a kmer counter available here: http://github.com/mutantturkey/dna-utils/
  - bash or compliant shell.
  
@@ -20,13 +36,31 @@ To use this you'll need:
     make
     sudo make install
 
-## Usage Examples
+## Example Usage
 Standard use of (SGA) SelectiveGenomeAmplification is easy. it takes two arguments,
 the foreground and background
 
 
     SelectiveGenomeAmplification PfalciparumGenome.fasta HumanGenome.fasta;
     less PfalciparumGenome_HumanGenome/final_mers
+
+### SGA User Interface
+SGA also comes with a easy to use user prompt called SelectiveGenomeAmplificationUI.
+It allows for a less experienced user to use
+SGA without issue. to run this all you need to do is run SelectiveGenomeAmiplifcationUI and you'll see a series of prompts asking the user about tunables like below
+
+    Where would you like to temporary files to be stored? (Default=$output_directory/.tmp): 
+    Where would you like to count files to be stored? (Default=$output_directory/.tmp): 
+    maximum mer size you would like to pick? (Default=12): 10
+    minimum mer size you would like to pick? (Default=6): 7
+    eliminate mers that appear less frequently on average than this number ? (Default=50000): 25000
+    .....
+    Input the path to your foreground file:target.fa  
+    Input the path to your background file:humangenome.fa 
+    Would you like to output your inserted variables to a string you can later paste? (Y/N/Default=y): n
+    Run SelectiveGenomeAmplification? (Y/N/Default=y): y
+
+### Setting Tunable Variables
 
 SGA allows for many tunable parameters, which are all explained in the chart
 below.  For user customizable variables, they need to be passed in as
@@ -35,9 +69,6 @@ environmental variables like so:
     max_mer_distance=5000 max_select=6 min_mer_range=6 max_mer_range=12 \
     SelectiveGenomeAmplification.sh PfalciparumGenome.fasta half.fasta 
 
-SGA also comes with a easy to use user prompt called SelectiveGenomeAmplificationUI.
-It allows for a less experienced user to use
-SGA without issue.
 
 ### Running individual steps
 
@@ -95,9 +126,7 @@ The mer file should look like this:
 each row is a separate mer. do not put multiple mers on one line.
 
 
-## Customizable variables
-
-range of mers, min and max 
+## Tunable Parameters
 
 variable | default | notes
 :---- | :---- | ---- | :----
@@ -125,7 +154,7 @@ primer\_weight | 0 | How much extra weight to give to sets with a higher number 
 
 Here's what we are using to determine our scoring and selectivity
 
-### Selectivity
+### Mer Selectivity
 
 Our selectivity is what we use to determine what top $max\_check mers are checked later
 on in our scoring function. Currently we use this formula:
