@@ -95,6 +95,7 @@ min\_foreground\_binding\_average | 50000 | elminate mers that appear less frequ
 max\_select | 15 | maximum number of mers to pick
 max\_check | 35  | maximum number of mers to select (check the top #)
 ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
+ignore\_all\_mers\_from\_files | Not Enabled | ignore any mers found in these files. space seperated.
 foreground | Not Enabled | path of foreground file
 background | Not Enabled | path of background file
 max\_consecutive\_binding | 4 | The maxium number of consecutive binding nucleotides in homodimer and heterodimers
