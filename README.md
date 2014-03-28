@@ -8,7 +8,7 @@ PI: http://brisson.bio.upenn.edu/
 ## Requirements
 To use this you'll need:
 
- - A unix environment
+ - A Uenix environment
  - kmer_total_count, a kmer counter available here: http://github.com/mutantturkey/dna-utils/
  - bash or compliant shell.
  
@@ -36,7 +36,7 @@ environmental variables like so:
     SelectiveGenomeAmplification.sh PfalciparumGenome.fasta half.fasta 
 
 SGA also comes with a easy to use user prompt called SelectiveGenomeAmplificationUI.
-It allows for a less expereienced user to use
+It allows for a less experienced user to use
 SGA without issue.
 
 ### Running individual steps
@@ -71,7 +71,7 @@ The combination file should look like this:
 
     ACGATATAT TACATAGA TATATATAT ACGTACCAT ATATTA
     AAATTATCAGT ATACATA ATATACAT ATATACATA ACATA
-		ATATACATA ATCATGATA CCAGATACATAT
+    ATATACATA ATCATGATA CCAGATACATAT
 
 each row is combination to be scored.
 
@@ -86,13 +86,13 @@ score\_mers.py script.
 The mer file should look like this:
 
     ATATAT
-		TACATA
-		TACATAGCA
-		TATAGAATAC
-		CGTAGATA
-		TAGAAT
+    TACATA
+    TACATAGCA
+    TATAGAATAC
+    CGTAGATA
+    TAGAAT
 
-each row is a seperate mer. do not put multiple mers on one line.
+each row is a separate mer. do not put multiple mers on one line.
 
 
 ## Customizable variables
@@ -110,28 +110,28 @@ counts\_directory | $output\_directory/.tmp | directory for counts directory
 tmp\_directory | $output\_directory/.tmp | temporary files directory
 max\_melting\_temp | 30° | maximum melting temp of mers
 min\_melting\_temp | 0° | minimum melting temp of mers
-min\_foreground\_binding\_average | 50000 | elminate mers that appear less frequently than the average  (length of foreground / # of occurances)
+min\_foreground\_binding\_average | 50000 | eliminate mers that appear less frequently than the average  (length of foreground / # of occurrances)
 max\_select | 15 | maximum number of mers to pick
 max\_check | 35  | maximum number of mers to select (check the top #)
-ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
-ignore\_all\_mers\_from\_files | Not Enabled | ignore any mers found in these files. space seperated.
+ignore\_mers | Not Enabled | mers to explicitly ignore, space separated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
+ignore\_all\_mers\_from\_files | Not Enabled | ignore any mers found in these files. space separated.
 foreground | Not Enabled | path of foreground file
 background | Not Enabled | path of background file
-max\_consecutive\_binding | 4 | The maxium number of consecutive binding nucleotides in homodimer and heterodimers
+max\_consecutive\_binding | 4 | The maximum number of consecutive binding nucleotides in homodimer and heterodimers
 fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see "equations" (between 0 and 1)
-primer\_weight | 0 | How much extra weight to give to sets with a higher number of priemrs. (between 0 and 1)
+primer\_weight | 0 | How much extra weight to give to sets with a higher number of primers. (between 0 and 1)
 
 ## Equations
 
 Here's what we are using to determine our scoring and selectivity
 
-### Selecivity
+### Selectivity
 
 Our selectivity is what we use to determine what top $max\_check mers are checked later
 on in our scoring function. Currently we use this formula:
 
 By default our fg\_weight is zero. This gives no extra weight to more
-frequently occuring mers, but can be set higher with the fg\_weight
+frequently occurring mers, but can be set higher with the fg\_weight
 environmental variable if you wish to do so.
 
     hit = abundance of primer X (ex. 'ATGTA') in background
@@ -143,7 +143,7 @@ environmental variable if you wish to do so.
 
 The scoring function is this:
 
-    fg_pts = all the points of each mer in the combination, and sequence ends4
+    fg_pts = all the points of each mer in the combination, and sequence ends
     fg_mean_dist = mean distance between each point in fg_pts
     fg_stddev = standard deviation of distance between each point in fg_pts
 
@@ -183,6 +183,6 @@ background count, and the mer selectivity value. (higher is better)
 
 ### score\_mers.py output
 
-score medrs outputs a tab delmited file with 6 columns:
+score mers outputs a tab delimited file with 6 columns:
 
     nb_primers  Combination  Score  FG_mean_dist  FG_stdev_dist  BG_ratio
