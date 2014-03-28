@@ -173,8 +173,8 @@ The file structure outputted by default is this:
 
 ### select\_mers.py output
 
-Select mers outputs a tab delimited file, with 4 columns: mer foreground count
-background count and the mer selectivity we give it. (higher is better)
+Select mers outputs a tab delimited file, with 4 columns: mer, foreground count,
+background count, and the mer selectivity value. (higher is better)
 
     CTAACTTAGGTC  1572  155  10.14194
     CTAACATAGGTC  1479  132  11.20455
