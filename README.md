@@ -157,6 +157,7 @@ The scoring function is this:
 ## Output
 
 The file structure outputted by default is this:
+
     $foreground_$background
     └── run_1 # current_run
         ├── filter # filter folder for filtering steps
