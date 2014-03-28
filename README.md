@@ -144,29 +144,44 @@ environmental variable if you wish to do so.
 The scoring function is this:
 
     fg_pts = all the points of each mer in the combination, and sequence ends4
-		fg_mean_dist = mean distance between each point in fg_pts
-		fg_stddev = standard deviation of distance between each point in fg_pts
+    fg_mean_dist = mean distance between each point in fg_pts
+    fg_stddev = standard deviation of distance between each point in fg_pts
 
-		nb_primers = number of primers in a combination
-		primer_weight = extra weight for sets with higher primers
+    nb_primers = number of primers in a combination
+    primer_weight = extra weight for sets with higher primers
 
-		bg_ratio = length of background / number of times primer was in background
+    bg_ratio = length of background / number of times primer was in background
 
     mer_score = (nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio
 
 ## Output
 
 The file structure outputted by default is this:
-		$foreground_$background/	
-		└── run_1 # current_run
-		    ├── filter # filter folder for filtering steps
-		    │   ├── 1-$foreground-ignore-mers
-		    │   ├── 2-$foreground-ignore-all-mers
-		    │   ├── 3-$foreground-average-binding
-		    │   ├── 4-$foreground-non-melting
-		    │   └── 5-$foreground-consecutive-binding
-		    ├── $foreground-filtered-counts # final filtered mers used for selected_mers.py
-		    ├── parameters # parameters used in the run
-		    ├── selected-mers # final filtered mers used for selected_mers.py
-		    └── scores-output # file outputted by score_mers.py
+    $foreground_$background
+    └── run_1 # current_run
+        ├── filter # filter folder for filtering steps
+        │   ├── 1-$foreground-ignore-mers
+        │   ├── 2-$foreground-ignore-all-mers
+        │   ├── 3-$foreground-average-binding
+        │   ├── 4-$foreground-non-melting
+        │   └── 5-$foreground-consecutive-binding
+        ├── $foreground-filtered-counts # final filtered mers used for select_mers.py
+        ├── parameters # parameters used in the run
+        ├── selected-mers # final filtered mers used for select_mers.py
+        └── scores-output # file outputted by score_mers.py
 
+### select\_mers.py output
+
+Select mers outputs a tab delimited file, with 4 columns: mer foreground count
+background count and the mer selectivity we give it. (higher is better)
+
+    CTAACTTAGGTC  1572  155  10.14194
+    CTAACATAGGTC  1479  132  11.20455
+    GACCTATGTTAG  1479  132  11.20455
+
+
+### score\_mers.py output
+
+score medrs outputs a tab delmited file with 6 columns:
+
+    nb_primers  Combination  Score  FG_mean_dist  FG_stdev_dist  BG_ratio
