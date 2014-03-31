@@ -186,7 +186,7 @@ All variables used in our scoring function are described here:
 
     bg_ratio = length of background / number of times primer was in background
 
-#### Default score function
+#### Default scoring function
 
 The default scoring function is this:
 
