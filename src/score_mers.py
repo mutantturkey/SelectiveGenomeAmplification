@@ -35,6 +35,12 @@ max_check        = int(os.environ.get("max_check", 35))
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000))
 max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4))
 primer_weight = float(os.environ.get("primer_weight", 0))
+score_func       = os.environ.get("score_fun", None)
+
+if score_func is not None:
+	score_func = compile('mer_score = ' + score_func, '<string>', 'exec')
+else:
+	score_func = compile('mer_score = (nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio', '<string>', 'exec')
 
 def get_max_consecutive_binding(mer1, mer2):
 	'''
@@ -276,6 +282,9 @@ def score_all_combinations(mers):
 		fh.write("NO RESULTS FOUND\n")
 	
 
+def check_max_distance(dist_arr):
+	return any(dist > max_mer_distance for dist in dist_arr)
+
 def score(combination):
 	# input is a string of mers like 
 	# ['ACCAA', 'ACCCGA', 'ACGTATA']
@@ -309,8 +318,7 @@ def score(combination):
 	fg_dist = np.diff(fg_pts)
 
   # return without calculating scores if any objects are higher than our max distance
-	if any(dist > max_mer_distance for dist in fg_dist):
-		#return [combination, "max", max(fg_dist)]
+	if check_max_distance(fg_dist) is True:
 		return 0
 
 	# bg counts 
@@ -326,11 +334,11 @@ def score(combination):
 
 
 	nb_primers = len(combination)
-	fg_mean_dist =  np.mean(fg_dist)
+	fg_mean_dist = np.mean(fg_dist)
 	fg_std_dist = np.std(fg_dist)
 
 	# this is our equation
-	mer_score = (nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio
+	exec score_func
 
 	return [combination, mer_score, fg_mean_dist, fg_std_dist, bg_ratio] 
 
@@ -347,6 +355,7 @@ def main():
 	global bg_genome_length
 	global seq_ends
 	global output_file
+	global score_func
 
 	parser = argparse.ArgumentParser(description="score mers")
 	parser.add_argument("-f", "--foreground", help="foreground fasta file", required=True)
@@ -399,10 +408,10 @@ def main():
 		print "Populating foreground locations"
 		populate_locations(selected_mers, fg_mers, args.foreground)
 
-		print "calculating heterodimer distances"
+		print "Calculating heterodimer distances"
 		load_heterodimer_dic(selected_mers)
 
-		print "scoring mer combinations"
+		print "Scoring mer combinations"
 		score_all_combinations(selected_mers)
 	
 	elif args.combination_file is not None:
@@ -413,11 +422,13 @@ def main():
 		combination_fh = open(args.combination_file, "r")
 		for line in combination_fh:
 			mers = line.split()
+			print mers
 			for mer in mers:
+				print mer
 				fg_mers[mer] = []
 				bg_mers[mer] = []
 
-		print "calculating heterodimer distances"
+		print "Calculating heterodimer distances"
 		load_heterodimer_dic(fg_mers.keys())
 
 		print "Populating foreground locations"
