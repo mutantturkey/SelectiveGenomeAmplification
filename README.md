@@ -3,15 +3,31 @@ SelectiveGenomeAmplification
 
 PI: http://brisson.bio.upenn.edu/
 
+## Table of Contents
 
-
+* [Requirements](#requirements)
+* [Setup](#setup)
+* [Example Usage](#example-usage)
+  * [SGA User Interface](#sga-user-interface)
+  * [Setting Tunable Parameters](#setting-tunable-parameters)
+  * [Running Individual Steps](#running-individual-steps)
+  * [Manually Scoring Specific Mer Combinations From List ](#manually-scoring-specific-mer-combinations-from-list)
+  * [Manually Score All Combinations From List](#manually-score-all-combinations-from-list)
+* [Table of Tunable Parameters](#tunable-parameters)
+* [Equations](#equations)
+  * [Mer Selectivity](#mer-selectivity)
+  * [Scoring Equation](#score-function)
+* [Output](#output)
+  * [Select Mers](#select_merspy-output)
+  * [Score Mers](#score_merspy-output)
+  
 ## Requirements
 To use this you'll need:
 
- - A unix environment
- - kmer_total_count, a kmer counter available here: http://github.com/mutantturkey/dna-utils/
+ - A Unix environment
+ - [dna-utils](http://github.com/mutantturkey/dna-utils/)
  - bash or compliant shell.
- 
+ - python 2.7.x
  
 ## Setup
 
@@ -20,13 +36,31 @@ To use this you'll need:
     make
     sudo make install
 
-## Usage Examples
+## Example Usage
 Standard use of (SGA) SelectiveGenomeAmplification is easy. it takes two arguments,
 the foreground and background
 
 
     SelectiveGenomeAmplification PfalciparumGenome.fasta HumanGenome.fasta;
     less PfalciparumGenome_HumanGenome/final_mers
+
+### SGA User Interface
+SGA also comes with a easy to use user prompt called SelectiveGenomeAmplificationUI.
+It allows for a less experienced user to use
+SGA without issue. to run this all you need to do is run SelectiveGenomeAmiplifcationUI and you'll see a series of prompts asking the user about tunables like below
+
+    Where would you like to temporary files to be stored? (Default=$output_directory/.tmp): 
+    Where would you like to count files to be stored? (Default=$output_directory/.tmp): 
+    maximum mer size you would like to pick? (Default=12): 10
+    minimum mer size you would like to pick? (Default=6): 7
+    eliminate mers that appear less frequently on average than this number ? (Default=50000): 25000
+    .....
+    Input the path to your foreground file:target.fa  
+    Input the path to your background file:humangenome.fa 
+    Would you like to output your inserted variables to a string you can later paste? (Y/N/Default=y): n
+    Run SelectiveGenomeAmplification? (Y/N/Default=y): y
+
+### Setting Tunable Parameters
 
 SGA allows for many tunable parameters, which are all explained in the chart
 below.  For user customizable variables, they need to be passed in as
@@ -35,9 +69,6 @@ environmental variables like so:
     max_mer_distance=5000 max_select=6 min_mer_range=6 max_mer_range=12 \
     SelectiveGenomeAmplification.sh PfalciparumGenome.fasta half.fasta 
 
-SGA also comes with a easy to use user prompt called SelectiveGenomeAmplificationUI.
-It allows for a less expereienced user to use
-SGA without issue.
 
 ### Running individual steps
 
@@ -59,7 +90,7 @@ valid steps are these:
 
 This function does not try to be smart, so use it wisely.
 
-### Manually scoring specific mer combinations from file
+### Manually scoring specific mer combinations from list
 
 Users can manually score combinations of mers they choose using the
 score\_mers.py script.
@@ -71,12 +102,13 @@ The combination file should look like this:
 
     ACGATATAT TACATAGA TATATATAT ACGTACCAT ATATTA
     AAATTATCAGT ATACATA ATATACAT ATATACATA ACATA
-		ATATACATA ATCATGATA CCAGATACATAT
+    ATATACATA ATCATGATA CCAGATACATAT
 
 each row is combination to be scored.
 
 
-### Manually score all combinations from file
+### Manually score all combinations from list
+
 Users can manually score all  combinations of mers they choose using the
 score\_mers.py script.
 
@@ -86,18 +118,16 @@ score\_mers.py script.
 The mer file should look like this:
 
     ATATAT
-		TACATA
-		TACATAGCA
-		TATAGAATAC
-		CGTAGATA
-		TAGAAT
+    TACATA
+    TACATAGCA
+    TATAGAATAC
+    CGTAGATA
+    TAGAAT
 
-each row is a seperate mer. do not put multiple mers on one line.
+each row is a separate mer. do not put multiple mers on one line.
 
 
-## Customizable variables
-
-range of mers, min and max 
+## Tunable Parameters
 
 variable | default | notes
 :---- | :---- | ---- | :----
@@ -110,29 +140,30 @@ counts\_directory | $output\_directory/.tmp | directory for counts directory
 tmp\_directory | $output\_directory/.tmp | temporary files directory
 max\_melting\_temp | 30° | maximum melting temp of mers
 min\_melting\_temp | 0° | minimum melting temp of mers
-min\_foreground\_binding\_average | 50000 | elminate mers that appear less frequently than the average  (length of foreground / # of occurances)
+min\_foreground\_binding\_average | 50000 | eliminate mers that appear less frequently than the average  (length of foreground / # of occurrances)
 max\_select | 15 | maximum number of mers to pick
 max\_check | 35  | maximum number of mers to select (check the top #)
-ignore\_mers | Not Enabled | mers to explicitly ignore, space seperated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
-ignore\_all\_mers\_from\_files | Not Enabled | ignore any mers found in these files. space seperated.
+ignore\_mers | Not Enabled | mers to explicitly ignore, space separated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
+ignore\_all\_mers\_from\_files | Not Enabled | ignore any mers found in these files. space separated.
 foreground | Not Enabled | path of foreground file
 background | Not Enabled | path of background file
-max\_consecutive\_binding | 4 | The maxium number of consecutive binding nucleotides in homodimer and heterodimers
+max\_consecutive\_binding | 4 | The maximum number of consecutive binding nucleotides in homodimer and heterodimers
 fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see "equations" (between 0 and 1)
-primer\_weight | 0 | How much extra weight to give to sets with a higher number of priemrs. (between 0 and 1)
+primer\_weight | 0 | How much extra weight to give to sets with a higher number of primers. (between 0 and 1)
 output\_top\_nb | 10000 | How many scores do you want to output in your sorted output file?
+=======
 
 ## Equations
 
 Here's what we are using to determine our scoring and selectivity
 
-### Selecivity
+### Mer Selectivity
 
 Our selectivity is what we use to determine what top $max\_check mers are checked later
 on in our scoring function. Currently we use this formula:
 
 By default our fg\_weight is zero. This gives no extra weight to more
-frequently occuring mers, but can be set higher with the fg\_weight
+frequently occurring mers, but can be set higher with the fg\_weight
 environmental variable if you wish to do so.
 
     hit = abundance of primer X (ex. 'ATGTA') in background
@@ -144,7 +175,7 @@ environmental variable if you wish to do so.
 
 The scoring function is this:
 
-    fg_pts = all the points of each mer in the combination, and sequence ends4
+    fg_pts = all the points of each mer in the combination, and sequence ends
     fg_mean_dist = mean distance between each point in fg_pts
     fg_stddev = standard deviation of distance between each point in fg_pts
 
@@ -186,6 +217,6 @@ background count, and the mer selectivity value. (higher is better)
 
 ### score\_mers.py output
 
-score medrs outputs a tab delmited file with 6 columns:
+score mers outputs a tab delimited file with 6 columns:
 
     nb_primers  Combination  Score  FG_mean_dist  FG_stdev_dist  BG_ratio
