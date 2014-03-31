@@ -35,12 +35,13 @@ max_check        = int(os.environ.get("max_check", 35))
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000))
 max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4))
 primer_weight = float(os.environ.get("primer_weight", 0))
-score_func       = os.environ.get("score_fun", None)
+score_str = os.environ.get("score_func", None)
 
-if score_func is not None:
-	score_func = compile('mer_score = ' + score_func, '<string>', 'exec')
+if score_str is not None:
+	score_func = compile('mer_score = ' + score_str, '<string>', 'exec')
 else:
 	score_func = compile('mer_score = (nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio', '<string>', 'exec')
+	score_str = '(nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio'
 
 def get_max_consecutive_binding(mer1, mer2):
 	'''
@@ -197,6 +198,7 @@ def percentage(part, whole, precision=2):
 
 def write_header(fh):
 	fh.write("# variables used: max_select=" + str(max_select) + " max_check=" + str(max_check) + " max_mer_distance=" + str(max_mer_distance) + " max_consecutive_binding=" + str(max_consecutive_binding) + " primer_weight=" + str(primer_weight) + "\n")
+	fh.write("# scoring function:" + str(score_str) + "\n")
 	fh.write("nb_primers\tCombination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_ratio\n")
 def write_result(fh, score_res):
 	combination, score_val, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
