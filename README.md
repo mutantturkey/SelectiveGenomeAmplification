@@ -153,7 +153,7 @@ max\_consecutive\_binding | 4 | The maximum number of consecutive binding nucleo
 fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see "equations" (between 0 and 1)
 primer\_weight | 0 | How much extra weight to give to sets with a higher number of primers. (between 0 and 1)
 output\_top\_nb | 10000 | How many scores do you want to output in your sorted output file?
-=======
+score\_func | Not Enabled | see the [custom scoring](#custom-scoring-function) section
 
 ## Equations
 
@@ -203,7 +203,7 @@ This is a security hole.
 you can specify it like any other parameter like so:
 
     # the default function
-    scoring\_func="(nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio" SelectiveGenomeAmplification....
+    score_func="(nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio" SelectiveGenomeAmplification....
 
 You need to use **valid** python code. 
 

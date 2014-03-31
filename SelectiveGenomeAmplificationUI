@@ -56,7 +56,8 @@ questions = [
 	{ 'question': 'maximum number of consecutively binding mers in hetero and homodimers?', 'default_str': '4', 'variable': 'max_consecutive_binding' },
 	{ 'question': 'what extra weight do you want for highgly binding primers? (0-1)', 'default_str': '0', 'variable': 'fg_weight' },
   { 'question': 'what extra weight do you want for sets with a higher number of primers? (0-1)', 'default_str': '0', 'variable': 'primer_weight'},
-	{ 'question': 'How many scored sets would you like in the top_scored_sets output file?', 'default_str':'10000', 'variable': 'output_top_nb'}
+	{ 'question': 'how many scored sets would you like in the top_scored_sets output file?', 'default_str':'10000', 'variable': 'output_top_nb'},
+	{ 'question': 'would you like to use a custom scoring function? see README.md for details', 'default_str':'', 'variable': 'score_func'}
 ]
 
 def bool_ask(ask_string, default):
