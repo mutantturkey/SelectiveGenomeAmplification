@@ -16,7 +16,9 @@ PI: http://brisson.bio.upenn.edu/
 * [Table of Tunable Parameters](#tunable-parameters)
 * [Equations](#equations)
   * [Mer Selectivity](#mer-selectivity)
-  * [Scoring Equation](#score-function)
+  * [Scoring Combinations](#score-combinations)
+    * [Default Scoring Function](#default-scoring-function)
+    * [Custom Scoring Function](#custom-scoring-function)
 * [Output](#output)
   * [Select Mers](#select_merspy-output)
   * [Score Mers](#score_merspy-output)
@@ -171,11 +173,11 @@ environmental variable if you wish to do so.
     (foreground hit / background hit) * (foreground hit ^ fg_weight)
 
 
-### Score function
+### Scoring combinations 
 
-The scoring function is this:
+All variables used in our scoring function are described here:
 
-    fg_pts = all the points of each mer in the combination, and sequence ends
+    fg_pts = an array of all the points of each mer in the combination, and sequence ends
     fg_mean_dist = mean distance between each point in fg_pts
     fg_stddev = standard deviation of distance between each point in fg_pts
 
@@ -184,7 +186,26 @@ The scoring function is this:
 
     bg_ratio = length of background / number of times primer was in background
 
+#### Default score function
+
+The default scoring function is this:
+
     mer_score = (nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio
+
+#### Custom scoring function
+
+We support custom scoring via python's exec methods. This means that you can
+destroy your system, blow up the universe, implode your hard drive, all within
+the confinesof this exec. That means don't do anything crazy. Stick to basic arithmetic.
+ 
+This is a security hole.
+
+you can specify it like any other parameter like so:
+
+    # the default function
+    scoring\_func="(nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio" SelectiveGenomeAmplification....
+
+You need to use **valid** python code. 
 
 ## Output
 
