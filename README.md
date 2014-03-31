@@ -19,6 +19,7 @@ PI: http://brisson.bio.upenn.edu/
   * [Scoring Combinations](#score-combinations)
     * [Default Scoring Function](#default-scoring-function)
     * [Custom Scoring Function](#custom-scoring-function)
+* [Filters](#filters)
 * [Output](#output)
   * [Select Mers](#select_merspy-output)
   * [Score Mers](#score_merspy-output)
@@ -207,13 +208,23 @@ you can specify it like any other parameter like so:
 
 You need to use **valid** python code. 
 
+## Filters
+
+There are several filters that our mers go through, to eliminate ones that won't fit our needs. They are all configurable via the tunable parameters. If you look in a output directory, you'll see a folder called "passes-filter". This contains a file for each of the different steps in the pipeline, and the contents of each file is what 'passes' that filter.
+
+For example, if you ignored the mer 'AAAAA', then in passes-filter/1-$foreground-ignore-mers there would be no line containing that.
+
+The filter system works like a big pipe, whatever gets filtered out won't make it to the next step. the order is like this
+
+
+    All mers -> ignore_mers -> ignore_all_mers -> average_binding -> non_melting -> consecutive_binding
 ## Output
 
 The file structure outputted by default is this:
 
     $foreground_$background
     └── run_1 # current_run
-        ├── filter # filter folder for filtering steps
+        ├── passes-filter # filter folder for filtering steps
         │   ├── 1-$foreground-ignore-mers
         │   ├── 2-$foreground-ignore-all-mers
         │   ├── 3-$foreground-average-binding
