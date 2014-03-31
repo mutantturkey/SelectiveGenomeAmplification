@@ -196,14 +196,14 @@ The default scoring function is this:
 
 We support custom scoring via python's exec methods. This means that you can
 destroy your system, blow up the universe, implode your hard drive, all within
-the confinesof this exec. That means don't do anything crazy. Stick to basic arithmetic.
+the confines of this exec. That means don't do anything crazy. Stick to basic arithmetic.
  
 This is a security hole.
 
 you can specify it like any other parameter like so:
 
     # the default function
-    score_func="(nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio" SelectiveGenomeAmplification....
+    score_func="(nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio"
 
 You need to use **valid** python code. 
 
