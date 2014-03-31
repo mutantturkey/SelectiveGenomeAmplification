@@ -201,11 +201,11 @@ bg_counts=$counts_directory/$bg_basename-counts
 final_fg_counts=$output_directory/$current_run/$fg_basename-filtered-counts
 selected=$output_directory/$current_run/selected-mers
 
-ignore_mers_counts="$output_directory/$current_run/filter/1-$fg_basename-ignore-mers"
-ignore_all_mers_counts="$output_directory/$current_run/filter/2-$fg_basename-ignore-all-mers"
-average_binding="$output_directory/$current_run/filter/3-$fg_basename-average-binding"
-non_melting="$output_directory/$current_run/filter/4-$fg_basename-non-melting"
-consecutive_binding="$output_directory/$current_run/filter/5-$fg_basename-consecutive-binding"
+ignore_mers_counts="$output_directory/$current_run/passes-filter/1-$fg_basename-ignore-mers"
+ignore_all_mers_counts="$output_directory/$current_run/passes-filter/2-$fg_basename-ignore-all-mers"
+average_binding="$output_directory/$current_run/passes-filter/3-$fg_basename-average-binding"
+non_melting="$output_directory/$current_run/passes-filter/4-$fg_basename-non-melting"
+consecutive_binding="$output_directory/$current_run/passes-filter/5-$fg_basename-consecutive-binding"
 
 # Make our output directory
 if [[ ! -d "$output_directory" ]]; then
@@ -228,8 +228,8 @@ if [[ ! -d $output_directory/$current_run ]]; then
 fi
 
 # Make our filter directory 
-if [[ ! -d "$output_directory/$current_run/filter" ]]; then
-	mkdir "$output_directory/$current_run/filter"
+if [[ ! -d "$output_directory/$current_run/passes-filter" ]]; then
+	mkdir "$output_directory/$current_run/passes-filter"
 fi
 
 echo "Outputting current run parameters"
