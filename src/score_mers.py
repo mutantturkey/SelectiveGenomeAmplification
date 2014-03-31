@@ -249,11 +249,11 @@ def score_all_combinations(mers):
 	fh = open(output_file, 'wb')
 	write_header(fh)
 
-	max_size = max_select+1
-	if len(mers) < max_select + 1:
+	max_size = max_select 
+	if len(mers) < max_select:
 		max_size = len(mers) + 1
 
-	for select_n in range(1, max_size ):
+	for select_n in range(1, max_size + 1 ):
 		print "scoring size ", select_n,
 		t = time.time()
 		scores_it = p.imap_unordered(score, combinations(mers, select_n), chunksize=8192)
