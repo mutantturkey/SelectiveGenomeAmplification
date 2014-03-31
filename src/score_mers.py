@@ -190,8 +190,8 @@ def percentage(part, whole, precision=2):
 	return str(percent) + "%"
 
 def write_header(fh):
+	fh.write("# variables used: max_select=" + str(max_select) + " max_check=" + str(max_check) + " max_mer_distance=" + str(max_mer_distance) + " max_consecutive_binding=" + str(max_consecutive_binding) + " primer_weight=" + str(primer_weight) + "\n")
 	fh.write("nb_primers\tCombination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_ratio\n")
-
 def write_result(fh, score_res):
 	combination, score_val, fg_mean_dist, fg_stddev_dist, bg_ratio = score_res
 	fh.write(str(len(combination)) + "\t")

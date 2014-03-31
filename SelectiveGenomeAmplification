@@ -323,8 +323,8 @@ if [[ -n "$step_score" ]] || [[ -n "$all" ]]; then
 	# output our sorted scores
 	echo "sorting and outputting top $output_top_nb scores"
 	echo "top scores output file: $output_directory/$current_run/top-scores"
-	head -n 1 $output_directory/$current_run/all-scores > $output_directory/$current_run/top-scores
-	tail -n +2 $output_directory/$current_run/all-scores | sort -r -t $'\t' -nk 3 | head -n $output_top_nb >> $output_directory/$current_run/top-scores
+	head -n 2 $output_directory/$current_run/all-scores > $output_directory/$current_run/top-scores
+	tail -n +3 $output_directory/$current_run/all-scores | sort -r -t $'\t' -nk 3 | head -n $output_top_nb >> $output_directory/$current_run/top-scores
 fi
 
 
