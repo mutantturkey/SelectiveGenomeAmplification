@@ -169,7 +169,6 @@ def load_heterodimer_dic(selected_mers):
 def check_feasible(selected):
 	total = 0
 	for mer in selected:
-		print	mer, len(fg_mers[mer]), len(selected)
 		total += len(fg_mers[mer])
 	if (fg_genome_length / (total + 1 )) > max_mer_distance:
 		print "even if we select all top ", max_select, 
@@ -444,7 +443,6 @@ def main():
 			fg_mers[mer] = []
 			bg_mers[mer] = []
 
-		print fg_mers.keys()
 		print "calculating heterodimer distances"
 		load_heterodimer_dic(fg_mers.keys())
 
@@ -454,14 +452,12 @@ def main():
 		print "Populating background locations"
 		populate_locations(fg_mers.keys(), bg_mers, args.background)
 		
-		print fg_mers
-
 		for mer in bg_mers:
 			bg_mers[mer] = len(bg_mers[mer])
 
 		score_all_combinations(fg_mers.keys())
 
-	print "output_file:", output_file
+	print "output file:", output_file
 
 if __name__ == "__main__":
 	sys.exit(main())

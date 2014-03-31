@@ -144,6 +144,9 @@ done
 # primer_weight, how much weight to give to sets with a higher number of primers. (between 0 and 1)
 : ${primer_weight=0}
 
+# output_top_nb, How many scored sets would you like in the top_scored_sets output file (Default = 10000)?
+: ${output_top_nb=10000}
+
 export ignore_mers
 export min_mer_range
 export max_mer_range
@@ -315,5 +318,13 @@ if [[ -n "$step_score" ]] || [[ -n "$all" ]]; then
 	fi
 
 	echo "Step 4: Scoring top mers based on selectivity"
-	score_wrapper.sh "$selected" "$foreground" "$background" "$output_directory/$current_run/scores-output" || exit 1
+	score_wrapper.sh "$selected" "$foreground" "$background" "$output_directory/$current_run/all-scores" || exit 1
+
+	# output our sorted scores
+	echo "sorting and outputting top $output_top_nb scores"
+	echo "top scores output file: $output_directory/$current_run/top-scores"
+	head -n 1 $output_directory/$current_run/all-scores > $output_directory/$current_run/top-scores
+	tail -n +2 $output_directory/$current_run/all-scores | sort -r $output_directory/$current_run/all-scores -t $'\t' -nk 3 | head -n $output_top_nb >> $output_directory/$current_run/top-scores
 fi
+
+

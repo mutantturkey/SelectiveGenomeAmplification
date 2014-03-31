@@ -39,11 +39,11 @@ questions = [
 	  'default_str': '35',
 	  'variable': 'max_check' },
 
-	{'question': 'Enter mers to ignore? (space seperated)',
+	{'question': 'enter mers to ignore? (space seperated)',
 	 'default_str': "None",
 	 'variable': 'ignore_mers'},
 
-	{'question': 'Enter files to ignore all mers from? (space seperated)',
+	{'question': 'enter files to ignore all mers from? (space seperated)',
 	 'default_str': "None",
 	 'variable': 'ignore_all_mers_from_files'},
 
@@ -55,7 +55,8 @@ questions = [
 	{ 'question': 'minimum melting temperature for mers?', 'default_str': '0c',  'variable': 'min_melting_temp' },
 	{ 'question': 'maximum number of consecutively binding mers in hetero and homodimers?', 'default_str': '4', 'variable': 'max_consecutive_binding' },
 	{ 'question': 'what extra weight do you want for highgly binding primers? (0-1)', 'default_str': '0', 'variable': 'fg_weight' },
-  { 'question': 'what extra weight do you want for sets with a higher number of primers? (0-1)', 'default_str': '0', 'variable': 'primer_weight'}
+  { 'question': 'what extra weight do you want for sets with a higher number of primers? (0-1)', 'default_str': '0', 'variable': 'primer_weight'},
+	{ 'question': 'How many scored sets would you like in the top_scored_sets output file?', 'default_str':'10000', 'variable': 'output_top_nb'}
 ]
 
 def bool_ask(ask_string, default):

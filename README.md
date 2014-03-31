@@ -120,6 +120,7 @@ background | Not Enabled | path of background file
 max\_consecutive\_binding | 4 | The maxium number of consecutive binding nucleotides in homodimer and heterodimers
 fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see "equations" (between 0 and 1)
 primer\_weight | 0 | How much extra weight to give to sets with a higher number of priemrs. (between 0 and 1)
+output\_top\_nb | 10000 | How many scores do you want to output in your sorted output file?
 
 ## Equations
 
@@ -169,7 +170,9 @@ The file structure outputted by default is this:
         ├── $foreground-filtered-counts # final filtered mers used for select_mers.py
         ├── parameters # parameters used in the run
         ├── selected-mers # final filtered mers used for select_mers.py
-        └── scores-output # file outputted by score_mers.py
+        ├── selected-mers # final filtered mers used for select_mers.py
+        ├── all-scores    #file outputted by score_mers.py (all the scores generated)
+        └── top-scores    # the sorted top $output_top_nb scores from all-scores
 
 ### select\_mers.py output
 
