@@ -117,7 +117,7 @@ def populate_locations(selected_mers, mer_dic, input_fn):
 
 		strstream = Popen(cmd, stdout=PIPE, shell=True)
 		for line in strstream.stdout:
-			(mer, pos) = line.strip().split(" ")
+			(mer, pos) = line.split(" ")
 			mer_dic[selected_mers[int(mer)]].append(int(pos))
 
 		merlist_fh.close()
@@ -232,7 +232,7 @@ def score_specific_combinations(mers):
 
 	fh = open(output_file, 'wb')
 	write_header(fh)
-
+	
 	score_it = p.map(score, mers)
 	for score_res in score_it:
 		if type(score_res) is list:
@@ -425,9 +425,8 @@ def main():
 		combination_fh = open(args.combination_file, "r")
 		for line in combination_fh:
 			mers = line.split()
-			print mers
+			combinations.append(mers)
 			for mer in mers:
-				print mer
 				fg_mers[mer] = []
 				bg_mers[mer] = []
 
@@ -443,7 +442,7 @@ def main():
 		for mer in bg_mers:
 			bg_mers[mer] = len(bg_mers[mer])
 
-		score_specific_combinations(fg_mers.keys())
+		score_specific_combinations(combinations)
 
 
 	elif args.mer_file is not None:
