@@ -223,7 +223,7 @@ The file structure outputted by default is this:
         ├── parameters # parameters used in the run
         ├── selected-mers # final filtered mers used for select_mers.py
         ├── selected-mers # final filtered mers used for select_mers.py
-        ├── all-scores    #file outputted by score_mers.py (all the scores generated)
+        ├── all-scores    # file outputted by score_mers.py (all the scores generated)
         └── top-scores    # the sorted top $output_top_nb scores from all-scores
 
 ### select\_mers.py output
