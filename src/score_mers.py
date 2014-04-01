@@ -187,7 +187,6 @@ def load_heterodimer_dic(selected_mers):
 def check_feasible(selected):
 	total = 0
 	for mer in selected:
-		print mer
 		total += len(fg_mers[mer])
 
 	if total is 0:
