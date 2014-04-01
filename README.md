@@ -13,6 +13,7 @@ PI: http://brisson.bio.upenn.edu/
   * [Running Individual Steps](#running-individual-steps)
   * [Manually Scoring Specific Mer Combinations From List ](#manually-scoring-specific-mer-combinations-from-list)
   * [Manually Score All Combinations From List](#manually-score-all-combinations-from-list)
+  * [Manually Rescore All Combinations From Previously Scored File](#manually-rescore-all-combinations-from-previously-scored-file)
 * [Table of Tunable Parameters](#tunable-parameters)
 * [Equations](#equations)
   * [Mer Selectivity](#mer-selectivity)
@@ -128,6 +129,16 @@ The mer file should look like this:
     TAGAAT
 
 each row is a separate mer. do not put multiple mers on one line.
+
+### Manually rescore all combinations from previously scored file
+
+Users can manually rescore all combinations of mers they previously used in the
+score\_mers.py script. This allows users to test different score functions easily
+with the same combinations.
+
+An example would be this:
+
+    score_func=nb_primers**2 score_mers.py -f fg.fa -b bg.fa -r fg_bg/run_1/all-scores -o primers_squared_scores
 
 
 ## Tunable Parameters
