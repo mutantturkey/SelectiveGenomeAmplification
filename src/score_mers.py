@@ -120,6 +120,9 @@ def populate_locations(selected_mers, mer_dic, input_fn):
 			(mer, pos) = line.split(" ")
 			mer_dic[selected_mers[int(mer)]].append(int(pos))
 
+		if strstream.wait() is not 0:
+			print "executing", cmd, "failed"
+
 		merlist_fh.close()
 
 
@@ -139,6 +142,10 @@ def load_end_points(fn):
 	for line in points_fh.stdout:
 		end_points.append(int(line))
 	
+
+	if points_fh.wait() is not 0:
+		print "executing", cmd, "failed"
+
 	return end_points
 
 def get_length(fn):
@@ -149,11 +156,15 @@ def get_length(fn):
 	if debug:
 		print "loading sequence end points"
 		print "executing: " + cmd
-	points_fh = Popen(cmd, stdout=PIPE, shell=True)
+	grep = Popen(cmd, stdout=PIPE, shell=True)
 
-	length = points_fh.stdout.readline()
+	length = grep.stdout.readline()
 
 	length = int(length)
+
+	if grep.wait() is not 0:
+		print "executing", cmd, "failed"
+
 
 	return length
 
@@ -176,9 +187,16 @@ def load_heterodimer_dic(selected_mers):
 def check_feasible(selected):
 	total = 0
 	for mer in selected:
+		print mer
 		total += len(fg_mers[mer])
+
+	if total is 0:
+		print "something went wrong, no mers found in the foreground. Consider this a bug!"
+		print fg_mers
+		exit()
+
 	if (fg_genome_length / (total + 1 )) > max_mer_distance:
-		print "even if we select all top ", max_select, 
+		print "even if we select all top", max_select, "of", total
 		print "mers disregarding any critera, and they were perfectly evenly spaced we would ",
 		print "still not meet the right max mer distance < ", max_mer_distance, "requirement."
 	
