@@ -192,7 +192,7 @@ def check_feasible(selected):
 	if total is 0:
 		print "something went wrong, no mers found in the foreground. Consider this a bug!"
 		print fg_mers
-		exit()
+		exit(1)
 
 	if (fg_genome_length / (total + 1 )) > max_mer_distance:
 		print "even if we select all top", max_select, "of", total
@@ -200,7 +200,7 @@ def check_feasible(selected):
 		print "still not meet the right max mer distance < ", max_mer_distance, "requirement."
 	
 		print total, " / ", fg_genome_length, " = ", total / fg_genome_length 
-		exit()
+		exit(1)
 
 def percentage(part, whole, precision=2):
 
@@ -410,7 +410,7 @@ def main():
 			parser.error("you must have at least one input file to score from [-s -c -m -r]")
 		else:
 			parser.error("you can only have one input file to score from" )
-		exit()
+		exit(1)
 
 	if not os.path.isfile(args.foreground):
 		parser.error(args.foreground + " not found")
@@ -449,7 +449,7 @@ def main():
 
 		if len(selected_mers) is 0:
 			print "no merss found."
-			exit()
+			exit(1)
 
 		# we already have our background counts
 		initialize_mers(args.foreground, args.background, load_background=False)
@@ -473,7 +473,7 @@ def main():
 
 		if len(combinations) is 0:
 			print "no combinations found."
-			exit()
+			exit(1)
 		initialize_mers(args.foreground, args.background)
 
 		score_specific_combinations(combinations)
@@ -493,7 +493,7 @@ def main():
 
 		if len(fg_mers.keys()) is 0:
 			print "no mers found."
-			exit()
+			exit(1)
 
 		initialize_mers(args.foreground, args.background)
 		score_all_combinations(fg_mers.keys())
@@ -516,7 +516,7 @@ def main():
 		
 		if len(combinations) is 0:
 			print "no combinations found."
-			exit()
+			exit(1)
 
 		initialize_mers(args.foreground, args.background)
 

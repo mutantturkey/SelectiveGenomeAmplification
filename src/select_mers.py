@@ -12,9 +12,9 @@ if(len(sys.argv) == 3):
 	bg_count_fn =  sys.argv[2]
 else:
 	print len(sys.argv)
-	print "please specify your inputs"
-	print "ex: select_mers.py fg_counts bg_counts"
-	exit()
+	sys.stderr.write("please specify your inputs\n")
+	sys.stderr.write("ex: select_mers.py fg_counts bg_count\n")
+	exit(1)
 
 
 # select mers based on our 'selectivity' measure. (count in fg) / (count in bg)
