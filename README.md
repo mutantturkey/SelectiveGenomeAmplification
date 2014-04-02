@@ -156,16 +156,16 @@ current\_run | Not Enabled | specify the run you want to run steps on
 min\_mer\_range | 6  | minimum mer size to use
 max\_mer\_range | 12 | maximum mer size to use 
 max\_mer\_distance | 5000 | maximum distance between mers in foreground
+min\_melting\_temp | 0° | minimum melting temp of mers
+max\_melting\_temp | 30° | maximum melting temp of mers
+min\_foreground\_binding\_average | 50000 | eliminate mers that appear less frequently than the average  (length of foreground / # of occurrances)
+ignore\_mers | Not Enabled | mers to explicitly ignore, space separated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
+ignore\_all\_mers\_from\_files | Not Enabled | ignore any mers found in these files. space separated.
 output\_directory | $foreground\_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta\_HumanGenome\_output.fasta/
 counts\_directory | $output\_directory/.tmp | directory for counts directory
 tmp\_directory | $output\_directory/.tmp | temporary files directory
-max\_melting\_temp | 30° | maximum melting temp of mers
-min\_melting\_temp | 0° | minimum melting temp of mers
-min\_foreground\_binding\_average | 50000 | eliminate mers that appear less frequently than the average  (length of foreground / # of occurrances)
 max\_select | 15 | maximum number of mers to pick
 max\_check | 35  | maximum number of mers to select (check the top #)
-ignore\_mers | Not Enabled | mers to explicitly ignore, space separated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
-ignore\_all\_mers\_from\_files | Not Enabled | ignore any mers found in these files. space separated.
 foreground | Not Enabled | path of foreground file
 background | Not Enabled | path of background file
 max\_consecutive\_binding | 4 | The maximum number of consecutive binding nucleotides in homodimer and heterodimers
@@ -173,6 +173,7 @@ fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see 
 primer\_weight | 0 | How much extra weight to give to sets with a higher number of primers. (between 0 and 1)
 output\_top\_nb | 10000 | How many scores do you want to output in your sorted output file?
 score\_func | Not Enabled | see the [custom scoring](#custom-scoring-function) section
+sort\_by | max | How do you want to rank top-scores? min means smaller is better, max is larger. 'min' or 'max'
 
 ## Equations
 
