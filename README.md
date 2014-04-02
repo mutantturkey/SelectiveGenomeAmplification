@@ -1,6 +1,13 @@
 SelectiveGenomeAmplification
 ============================
 
+SWGA is a tool for choosing primers for the selective amplification of a
+target genome from a sample containing a mixture of target and contaminating
+DNA (i.e. pathogen genome from infected host blood) [cite relevant paper]. It
+does so by identifying short, recurring motifs in a target sequence file and
+scoring sets of motifs based on selectivity for and even distribution in the
+target sequence against a background sequence file.
+
 PI: http://brisson.bio.upenn.edu/
 
 ## Table of Contents
