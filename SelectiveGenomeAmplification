@@ -150,7 +150,7 @@ done
 # scoring_func: A custom scoring function. disable by default. See README.md
 
 # sort score by the minimum or maximum value. acceptable parameters are min or max.
-: ${sort_by="max"}
+: ${sort_by="min"}
 
 export ignore_mers
 export min_mer_range
