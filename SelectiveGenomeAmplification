@@ -149,6 +149,9 @@ done
 
 # scoring_func: A custom scoring function. disable by default. See README.md
 
+# sort score by the minimum or maximum value. acceptable parameters are min or max.
+: ${sort_by="max"}
+
 export ignore_mers
 export min_mer_range
 export max_mer_range
@@ -181,6 +184,15 @@ fi
 if [[ -n "$current_run" ]] && [[ ! -d "$output_directory/$current_run" ]]; then
 	echo -n "run $current_run was not found, it should be a folder here: "
 	echo "$output_directory/$current_run"
+	exit
+fi
+
+if [[ "$sort_by" = "min" ]]; then
+	sort=''
+elif [[ "$sort_by" = "max" ]]; then
+	sort="-r"
+else
+	echo "Error: \$sort_by must either be set to max or min"
 	exit
 fi
 
@@ -326,7 +338,5 @@ if [[ -n "$step_score" ]] || [[ -n "$all" ]]; then
 	echo "sorting and outputting top $output_top_nb scores"
 	echo "top scores output file: $output_directory/$current_run/top-scores"
 	head -n 3 $output_directory/$current_run/all-scores > $output_directory/$current_run/top-scores
-	tail -n +4 $output_directory/$current_run/all-scores | sort -r -t $'\t' -nk 3 | head -n $output_top_nb >> $output_directory/$current_run/top-scores
+	tail -n +4 $output_directory/$current_run/all-scores | sort $sort -t $'\t' -nk 3 | head -n $output_top_nb >> $output_directory/$current_run/top-scores
 fi
-
-
