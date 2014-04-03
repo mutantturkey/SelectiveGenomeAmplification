@@ -173,7 +173,7 @@ fg\_weight | 0 | How much extra weight to give higher frequency mers in fg. see 
 primer\_weight | 0 | How much extra weight to give to sets with a higher number of primers. (between 0 and 1)
 output\_top\_nb | 10000 | How many scores do you want to output in your sorted output file?
 score\_func | Not Enabled | see the [custom scoring](#custom-scoring-function) section
-sort\_by | max | How do you want to rank top-scores? min means smaller is better, max is larger. 'min' or 'max'
+sort\_by | min | How do you want to rank top-scores? min means smaller is better, max is larger. 'min' or 'max'
 
 ## Equations
 
