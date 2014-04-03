@@ -147,7 +147,8 @@ done
 # output_top_nb, How many scored sets would you like in the top_scored_sets output file (Default = 10000)?
 : ${output_top_nb=10000}
 
-# scoring_func: A custom scoring function. disable by default. See README.md
+# score_func: A custom scoring function. disable by default. See README.md
+: ${score_func="(nb_primers**primer_weight) * (fg_mean_dist * fg_std_dist) / bg_ratio"}
 
 # sort score by the minimum or maximum value. acceptable parameters are min or max.
 : ${sort_by="min"}
@@ -245,7 +246,7 @@ if [[ ! -d "$output_directory/$current_run/passes-filter" ]]; then
 fi
 
 echo "Outputting current run parameters"
-	for var in scoring_func ignore_mers ignore_all_mers_from_files min_mer_range max_mer_range max_check cpus max_consecutive_binding max_select min_foreground_binding_average max_mer_distance min_melting_temp max_melting_temp foreground background; do 
+	for var in score_func ignore_mers ignore_all_mers_from_files min_mer_range max_mer_range max_check cpus max_consecutive_binding max_select min_foreground_binding_average max_mer_distance min_melting_temp max_melting_temp foreground background; do 
 	echo "$var" "${!var}" >> "$output_directory"/"$current_run"/parameters
 done;
 
