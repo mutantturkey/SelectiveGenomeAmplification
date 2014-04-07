@@ -4,7 +4,7 @@ import os
 import argparse
 
 mers = {} 
-debug = False
+debug = os.environ.get("debug", False)
 
 from subprocess import Popen
 from subprocess import PIPE
@@ -12,14 +12,14 @@ from subprocess import PIPE
 
 def get_sequence(pt):
 	
-	for it, seq in enumerate(seq_ends):
+	for it, seq in enumerate(seq_ends, start=1):
 		if pt <= seq:
 			return it
 
 def load_end_points(fn):
 	''' get all the points of the end of each sequence in a sample '''
 
-	end_points = [0]
+	end_points = []
 
 	cmd = "sequence_end_points < " + fn
 
@@ -81,6 +81,8 @@ def populate_locations(selected_mers, mer_dic, input_fn, length):
 							"| tr [ACGT] [TGCA] | strstream ", True])
 	
 	for (cmd, reverse) in cmds:
+		if(debug):
+			print(cmd)
 		_, merlist_fn = tempfile.mkstemp()
 
 		# write our mers out to a fifi
