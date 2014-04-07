@@ -1,4 +1,4 @@
-SelectiveGenomeAmplification
+SelectiveWholeGenomeAmplification
 ============================
 
 SWGA is a tool for choosing primers for the selective amplification of a
@@ -42,21 +42,21 @@ To use this you'll need:
  
 ## Setup
 
-    git clone git@github.com:mutantturkey/SelectiveGenomeAmplification.git
-    cd SelectiveGenomeAmplification
+    git clone git@github.com:mutantturkey/SelectiveWholeGenomeAmplification".git
+    cd SelectiveWholeGenomeAmplification"
     make
     sudo make install
 
 ## Example Usage
-Standard use of (SGA) SelectiveGenomeAmplification is easy. it takes two arguments,
+Standard use of (SGA) SelectiveWholeGenomeAmplification" is easy. it takes two arguments,
 the foreground and background
 
 
-    SelectiveGenomeAmplification PfalciparumGenome.fasta HumanGenome.fasta;
+    SelectiveWholeGenomeAmplification" PfalciparumGenome.fasta HumanGenome.fasta;
     less PfalciparumGenome_HumanGenome/final_mers
 
 ### SGA User Interface
-SGA also comes with a easy to use user prompt called SelectiveGenomeAmplificationUI.
+SGA also comes with a easy to use user prompt called SelectiveWholeGenomeAmplification"UI.
 It allows for a less experienced user to use
 SGA without issue. to run this all you need to do is run SelectiveGenomeAmiplifcationUI and you'll see a series of prompts asking the user about tunables like below
 
@@ -69,7 +69,7 @@ SGA without issue. to run this all you need to do is run SelectiveGenomeAmiplifc
     Input the path to your foreground file:target.fa  
     Input the path to your background file:humangenome.fa 
     Would you like to output your inserted variables to a string you can later paste? (Y/N/Default=y): n
-    Run SelectiveGenomeAmplification? (Y/N/Default=y): y
+    Run SelectiveWholeGenomeAmplification"? (Y/N/Default=y): y
 
 ### Setting Tunable Parameters
 
@@ -78,19 +78,19 @@ below.  For user customizable variables, they need to be passed in as
 environmental variables like so:
 
     max_mer_distance=5000 max_select=6 min_mer_range=6 max_mer_range=12 \
-    SelectiveGenomeAmplification.sh PfalciparumGenome.fasta half.fasta 
+    SelectiveWholeGenomeAmplification".sh PfalciparumGenome.fasta half.fasta 
 
 
 ### Running individual steps
 
-By default SelectiveGenomeAmplification runs all four steps, but you can
+By default SelectiveWholeGenomeAmplification" runs all four steps, but you can
 specify the program to run other steps, like in these examples.
 
-    current_run=run_1 SelectiveGenomeAmplification target.fasta bg.fasta score
+    current_run=run_1 SelectiveWholeGenomeAmplification" target.fasta bg.fasta score
 
-    current_run=run_1 SelectiveGenomeAmplification target.fasta bg.fasta select score
+    current_run=run_1 SelectiveWholeGenomeAmplification" target.fasta bg.fasta select score
 
-    current_run=run_1 SelectiveGenomeAmplification target.fasta bg.fasta 3 4 
+    current_run=run_1 SelectiveWholeGenomeAmplification" target.fasta bg.fasta 3 4 
 
 valid steps are these:
 

@@ -96,7 +96,7 @@ def run(variables_as_a_string):
 
 	import subprocess
 	try:
-		subprocess.check_call(variables_as_a_string + " " + "SelectiveGenomeAmplification " + foreground + " " + background, shell=True)
+		subprocess.check_call(variables_as_a_string + " " + "SelectiveWholeGenomeAmplification " + foreground + " " + background, shell=True)
 	except:
 		pass
 
@@ -122,5 +122,5 @@ else:
 	if(bool_ask("Would you like to output your inserted variables to a string you can later paste?", "y")):
 		print variables_to_string(variables)
 
-	if(bool_ask("Run SelectiveGenomeAmplification?", "y")):
+	if(bool_ask("Run SelectiveWholeGenomeAmplification?", "y")):
 		run(variables_to_string(variables))

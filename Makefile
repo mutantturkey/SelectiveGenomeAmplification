@@ -26,8 +26,8 @@ install: all
 	install -c bin/strstreamone $(DEST)
 	install -c bin/sequence_end_points $(DEST)
 	# bash scripts
-	install -c SelectiveGenomeAmplification $(DEST)
-	install -c SelectiveGenomeAmplificationUI $(DEST)
+	install -c SelectiveWholeGenomeAmplification $(DEST)
+	install -c SelectiveWholeGenomeAmplificationUI $(DEST)
 	# python scripts
 	install -c src/select_mers.py $(DEST)
 	install -c src/score_mers.py $(DEST)
