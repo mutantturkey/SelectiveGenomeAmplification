@@ -220,7 +220,8 @@ def percentage(part, whole, precision=2):
 	return str(percent) + "%"
 
 def write_header(fh):
-	fh.write("# variables used: max_select=" + str(max_select) + " max_check=" + str(max_check) + " max_mer_distance=" + str(max_mer_distance) + " max_consecutive_binding=" + str(max_consecutive_binding) + " primer_weight=" + str(primer_weight) + "\n")
+	fh.write("# variables used: max_select=" + str(max_select) + " max_check=" + str(max_check) + " max_mer_distance=" + str(max_mer_distance) + " max_consecutive_binding=" + str(max_consecutive_binding) + " primer_weight=" + str(primer_weight) + " ")
+	fh.write("fg_genome_length=" + str(fg_genome_length) + " bg_genome_length=" + str(bg_genome_length) + "\n")
 	fh.write("# scoring function: " + str(score_str) + "\n")
 	fh.write("#nb_primers\tCombination\tScore\tFG_mean_dist\tFG_stdev_dist\tBG_ratio\n")
 
