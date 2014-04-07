@@ -81,7 +81,7 @@ def get_max_consecutive_binding(mer1, mer2):
 	return max_bind
 
 
-def populate_locations(selected_mers, mer_dic, input_fn):
+def populate_locations(selected_mers, mer_dic, input_fn, length):
 	''' 
 	Run the strstreamone command, and parse in the integers that are output
 	by the command, and add it to mers[mer] 
@@ -95,15 +95,15 @@ def populate_locations(selected_mers, mer_dic, input_fn):
 
 	cmds = []
 	# strip file of header and delete newlines
-	cmds.append("grep -v '^>' " + input_fn  +  " | tr -d '\\n' | strstream ")
+	cmds.append(["grep -v '^>' " + input_fn  +  " | tr -d '\\n' | strstream ", False])
 	# reverse file, strip and delete newlines
-	cmds.append("tac " + input_fn + \
+	cmds.append(["tac " + input_fn + \
 							"| rev " \
 							"| grep -v '>$' " \
 							"| tr -d '\\n' " \
-							"| tr [ACGT] [TGCA] | strstream ")
+							"| tr [ACGT] [TGCA] | strstream ", True])
 	
-	for cmd in cmds:
+	for (cmd, reverse) in cmds:
 		_, merlist_fn = tempfile.mkstemp()
 
 		# write our mers out to a fifi
@@ -116,9 +116,15 @@ def populate_locations(selected_mers, mer_dic, input_fn):
 		cmd = cmd + " " + merlist_fn
 
 		strstream = Popen(cmd, stdout=PIPE, shell=True)
-		for line in strstream.stdout:
-			(mer, pos) = line.split(" ")
-			mer_dic[selected_mers[int(mer)]].append(int(pos))
+		if reverse:
+			for line in strstream.stdout:
+				(mer, pos) = line.split(" ")
+				pos = length - int(pos)
+				mer_dic[selected_mers[int(mer)]].append(pos)
+		else:
+			for line in strstream.stdout:
+				(mer, pos) = line.split(" ")
+				mer_dic[selected_mers[int(mer)]].append(int(pos))
 
 		if strstream.wait() is not 0:
 			print "executing", cmd, "failed"
@@ -368,11 +374,11 @@ def initialize_mers(foreground, background, load_background=True):
 	load_heterodimer_dic(fg_mers.keys())
 
 	print "Populating foreground locations"
-	populate_locations(fg_mers.keys(), fg_mers, foreground)
+	populate_locations(fg_mers.keys(), fg_mers, foreground, fg_genome_length)
 
 	if load_background:
 		print "Populating background locations"
-		populate_locations(fg_mers.keys(), bg_mers, background)
+		populate_locations(fg_mers.keys(), bg_mers, background, bg_genome_length)
 
 		for mer in bg_mers:
 			bg_mers[mer] = len(bg_mers[mer])
@@ -422,6 +428,9 @@ def main():
 	print "Getting genome length"
 	fg_genome_length = get_length(args.foreground)
 	bg_genome_length = get_length(args.background)
+
+	print "fg_genome_length:", fg_genome_length
+	print "bg_genome_length:", bg_genome_length
 
 	print "Populating sequence end points"
 	seq_ends = load_end_points(args.foreground)
