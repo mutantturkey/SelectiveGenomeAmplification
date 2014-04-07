@@ -46,9 +46,9 @@ char **load_mers_from_file(FILE *fh, ssize_t *len) {
 
 int main(int argc, char **argv){
 
-	char buffer[BUFSIZ] = { 0 };
+	char buffer[BUFSIZ + 1] = { 0 };
 	char *buf, *start;
-	ssize_t len = 0;
+	size_t len = 0;
 	ssize_t mer_len = 0;
 
 	int save_size = 0;
@@ -96,9 +96,13 @@ int main(int argc, char **argv){
 
 	// read into "start" (buf + cpy) from tdin
 	while((len = fread(start, 1, cpy_size, stdin)) != 0) {
+		// strstr isn't smart, and fread doesn't set a '\0', so manually set end of string
+		if(len < cpy_size)
+			start[len] = '\0';
+
 		for(i = 0; i < mer_len; i++) {
 			char *p = buffer;
-				while((p = strstr(p, mers[i])) != NULL) {
+			while((p = strstr(p, mers[i])) != NULL) {
 				printf("%d %llu\n", i, pos + (p - buffer));
 				p++;
 			}
