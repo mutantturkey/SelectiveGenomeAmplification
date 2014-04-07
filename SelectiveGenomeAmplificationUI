@@ -95,11 +95,18 @@ def variables_to_string(variables):
 def run(variables_as_a_string):
 
 	import subprocess
-	subprocess.check_call(variables_as_a_string + " " + "SelectiveGenomeAmplification " + foreground + " " + background, shell=True)
+	try:
+		subprocess.check_call(variables_as_a_string + " " + "SelectiveGenomeAmplification " + foreground + " " + background, shell=True)
+	except:
+		pass
+
 
 if(bool_ask("would you like to input all your variables at once?", "n")):
 	variables = raw_input("Please paste in your variables (space delimited) and Run:")
 	run(variables)
+
+	raw_input("Press Enter to exit...")
+
 else:
 	for q in questions:
 		if 'bool' in q:
