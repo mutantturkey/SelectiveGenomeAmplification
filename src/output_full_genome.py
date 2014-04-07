@@ -161,8 +161,7 @@ def main():
 		pts = sorted(pts, key = lambda row: row[0])
 			
 		for pt in pts:
-			fh.write(str(pt))
-			fh.write("\n")
+			fh.write('\t'.join(str(x) for x in pt) + '\n')
 
 		nb_done += 1 
 		if nb_done == args.number:
