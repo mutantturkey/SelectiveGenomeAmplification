@@ -27,6 +27,7 @@ check_mers() {
 	fi
 
 	# check each mer size and process if not already run
+	lock $tmp_directory/counts-lock
 	for (( mer = min_mer_range; mer <= max_mer_range; mer++)) ; do 
 		if [[ ! -e "$counts"-counts-"$mer" ]]; then
 			echo "    checking $mer mers for $fasta_file"
@@ -39,7 +40,7 @@ check_mers() {
 		cat "$counts"-counts-"$mer" >> "$counts"-counts
 
 	done
-
+	rmdir $tmp_directory/counts-lock
 }
 
 all=run
