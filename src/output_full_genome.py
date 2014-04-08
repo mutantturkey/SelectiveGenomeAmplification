@@ -113,11 +113,13 @@ def populate_locations(selected_mers, mer_dic, input_fn, length):
 
 def main():
 
-	parser = argparse.ArgumentParser(description="score mers")
+	parser = argparse.ArgumentParser(description="take a top-scores file, and \
+		create a set of files that contain the positions (and other information) in \
+		the foreground fasta file of each mer in that combination. ") 
 	parser.add_argument("-f", "--fasta", help="input fasta file", required=True)
-	parser.add_argument("-s", "--scores", help="scores file", required=True)
-	parser.add_argument("-o", "--output_directory", help="scores file", required=True)
-	parser.add_argument("-n", "--number", help="output top n", required=False, type=int, default=20)
+	parser.add_argument("-s", "--scores", help="input scores file", required=True)
+	parser.add_argument("-o", "--output_directory", help="directory to output sets to.", required=True)
+	parser.add_argument("-n", "--number", help="output the first n sets", required=False, type=int, default=20)
 
 	args = parser.parse_args()
 
