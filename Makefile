@@ -28,6 +28,7 @@ install: all
 	# bash scripts
 	install -c SelectiveWholeGenomeAmplification $(DEST)
 	install -c SelectiveWholeGenomeAmplificationUI $(DEST)
+	install -c src/lock $(DEST)
 	# python scripts
 	install -c src/select_mers.py $(DEST)
 	install -c src/score_mers.py $(DEST)
