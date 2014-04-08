@@ -230,11 +230,17 @@ You need to use **valid** python code.
 
 ## Filters
 
-There are several filters that our mers go through, to eliminate ones that won't fit our needs. They are all configurable via the tunable parameters. If you look in a output directory, you'll see a folder called "passes-filter". This contains a file for each of the different steps in the pipeline, and the contents of each file is what 'passes' that filter.
+There are several filters that our mers go through, to eliminate ones that
+won't fit our needs. They are all configurable via the tunable parameters. If
+you look in a output directory, you'll see a folder called "passes-filter".
+This contains a file for each of the different steps in the pipeline, and the
+contents of each file is what 'passes' that filter.
 
-For example, if you ignored the mer 'AAAAA', then in passes-filter/1-$foreground-ignore-mers there would be no line containing that.
+For example, if you ignored the mer 'AAAAA', then in
+passes-filter/1-$foreground-ignore-mers there would be no line containing that.
 
-The filter system works like a big pipe, whatever gets filtered out won't make it to the next step. the order is like this
+The filter system works like a big pipe, whatever gets filtered out won't make
+it to the next step. the order is like this
 
 
     All mers -> ignore_mers -> ignore_all_mers -> average_binding -> non_melting -> consecutive_binding
@@ -272,3 +278,15 @@ background count, and the mer selectivity value. (higher is better)
 score mers outputs a tab delimited file with 6 columns:
 
     nb_primers  Combination  Score  FG_mean_dist  FG_stdev_dist  BG_ratio
+
+## Post Processing
+
+To get a more detailed look at each scored combination we provide the
+output\_full\_genome.py script. This script will output all of the points in a 
+selected set along with some metadata, including position, what sequence it is in,
+what strand and what mer it is.
+
+    output_full_genome.py -f fg.fa -s fg.fa_bg.fa/run_12/top-scores -n 15 -o sets
+
+this will output one file for eat of the the top 15 sets in top-scores, in the
+folder sets.

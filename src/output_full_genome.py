@@ -72,15 +72,15 @@ def populate_locations(selected_mers, mer_dic, input_fn, length):
 
 	cmds = []
 	# strip file of header and delete newlines
-	cmds.append(["grep -v '^>' " + input_fn  +  " | tr -d '\\n' | strstream ", False])
+	cmds.append(["grep -v '^>' " + input_fn  +  " | tr -d '\\n' | strstream ", False, 5])
 	# reverse file, strip and delete newlines
 	cmds.append(["tac " + input_fn + \
 							"| rev " \
 							"| grep -v '>$' " \
 							"| tr -d '\\n' " \
-							"| tr [ACGT] [TGCA] | strstream ", True])
+							"| tr [ACGT] [TGCA] | strstream ", True, 3])
 	
-	for (cmd, reverse) in cmds:
+	for (cmd, reverse, strand) in cmds:
 		if(debug):
 			print(cmd)
 		_, merlist_fn = tempfile.mkstemp()
@@ -98,12 +98,11 @@ def populate_locations(selected_mers, mer_dic, input_fn, length):
 		if reverse:
 			for line in strstream.stdout:
 				(mer, pos) = line.split(" ")
-				pos = length - int(pos)
-				mer_dic[selected_mers[int(mer)]].append(pos)
+				mer_dic[selected_mers[int(mer)]].append([pos, strand])
 		else:
 			for line in strstream.stdout:
 				(mer, pos) = line.split(" ")
-				mer_dic[selected_mers[int(mer)]].append(int(pos))
+				mer_dic[selected_mers[int(mer)]].append([int(pos), strand])
 
 		if strstream.wait() is not 0:
 			print "executing", cmd, "failed"
@@ -127,11 +126,12 @@ def main():
 		parser.error(args.output_directory + "must point to a directory")
 	elif not os.path.isdir(args.output_directory):
 		os.mkdir(args.output_directory)
-
 	score_fh = open(args.scores, "r")
 
 	global seq_ends
 	seq_ends = load_end_points(args.fasta)
+
+	length = get_length(args.fasta)
 
 	nb_done = 0;
 	for line in score_fh:
@@ -153,15 +153,16 @@ def main():
 				new_populate.append(mer)
 		
 		if len(new_populate) is not 0:
-			populate_locations(new_populate, mers, args.fasta, get_length(args.fasta))
+			populate_locations(new_populate, mers, args.fasta, length)
 
 		pts = []
 		for mer in combination:
 			for pt in mers[mer]:
-				pts.append([pt, mer, get_sequence(pt)])
+				pts.append([pt[0], pt[1], mer, get_sequence(pt[0])])
 		
 		pts = sorted(pts, key = lambda row: row[0])
 			
+		fh.write("pt\tstrand\tmer\tsequence\n")
 		for pt in pts:
 			fh.write('\t'.join(str(x) for x in pt) + '\n')
 
