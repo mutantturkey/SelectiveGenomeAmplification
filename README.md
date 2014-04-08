@@ -31,7 +31,8 @@ PI: http://brisson.bio.upenn.edu/
 * [Output](#output)
   * [Select Mers](#select_merspy-output)
   * [Score Mers](#score_merspy-output)
-  
+* [Post Processing](#post-processing)
+
 ## Requirements
 To use this you'll need:
 
@@ -244,6 +245,8 @@ it to the next step. the order is like this
 
 
     All mers -> ignore_mers -> ignore_all_mers -> average_binding -> non_melting -> consecutive_binding
+
+
 ## Output
 
 The file structure outputted by default is this:
