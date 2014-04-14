@@ -1,3 +1,4 @@
+#!/bin/sh
 lock() {
 
 	if [[ -f "$1" ]]; then
@@ -11,7 +12,7 @@ lock() {
 		echo "lock $1 found, waiting for unlock" >&2
 		while true; do
 			sleep 2;
-			if [[ ! -d "$1" ]]; then
+			if mkdir "$1" &>/dev/null; then
 				return
 			fi
 		done
