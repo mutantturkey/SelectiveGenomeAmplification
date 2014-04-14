@@ -58,58 +58,49 @@ def get_length(fn):
 
 	return length
 
-def populate_locations(selected_mers, mer_dic, input_fn, length):
+
+def size_iterator(mer_arr):
+	for mer_len in set([ len(it) for it in mer_arr]):
+		mers = filter(lambda x: len(x) == mer_len, mer_arr)
+		yield mers
+
+def populate_locations(mers, mer_dic, input_fn, length):
 	''' 
-	Run the strstreamone command, and parse in the integers that are output
+	Run the kmer_locations command, and parse in the integers that are output
 	by the command, and add it to mers[mer] 
 
-	strstreamone just prints the location of a string argv[1] in stdout.
-
-	We also do the reverse compliment, using tac and tr piped together.
+	We also do the reverse compliment, so we subtract the length of the genome for it
 	'''
 	import tempfile
 
-
-	cmds = []
-	# strip file of header and delete newlines
-	cmds.append(["grep -v '^>' " + input_fn  +  " | tr -d '\\n' | strstream ", False, 5])
-	# reverse file, strip and delete newlines
-	cmds.append(["tac " + input_fn + \
-							"| rev " \
-							"| grep -v '>$' " \
-							"| tr -d '\\n' " \
-							"| tr [ACGT] [TGCA] | strstream ", True, 3])
-	
-	for (cmd, reverse, strand) in cmds:
-		if(debug):
-			print(cmd)
+	# write our mers out to a fifi
+	for n_mers in size_iterator(mers):
 		_, merlist_fn = tempfile.mkstemp()
-
-		# write our mers out to a fifi
 		merlist_fh = open(merlist_fn, 'w')
-		for mer in selected_mers:
+		for mer in n_mers:
+			print mer
 			merlist_fh.write(mer + '\n')
 
 		merlist_fh.flush()
 		# add our merlist fn to our command
-		cmd = cmd + " " + merlist_fn
+		cmd = "kmer_locations -k " + str(len(n_mers[0])) +  " -c  -m \"" + merlist_fn + "\" -l -i \"" + input_fn + "\""
 
-		strstream = Popen(cmd, stdout=PIPE, shell=True)
-		if reverse:
-			for line in strstream.stdout:
-				(mer, pos) = line.split(" ")
-				mer_dic[selected_mers[int(mer)]].append([pos, strand])
-		else:
-			for line in strstream.stdout:
-				(mer, pos) = line.split(" ")
-				mer_dic[selected_mers[int(mer)]].append([int(pos), strand])
+		if(debug):
+			print "Executing", cmd
 
-		if strstream.wait() is not 0:
-			print "executing", cmd, "failed"
+		cmd_pipe = Popen(cmd, stdout=PIPE, shell=True)
+		for line in cmd_pipe.stdout:
+			line_s = line[:-1].split(" ")
+			if len(line_s) == 2:
+				mer_dic[line_s[0]].append([int(line_s[1]), 3])
+			elif len(line_s) == 3:
+				mer_dic[line_s[0]].append([length - int(line_s[1]), 5])
+
+		if cmd_pipe.wait() is not 0:
+			print "Executing", cmd, "failed"
+			exit()
 
 		merlist_fh.close()
-
-
 def main():
 
 	parser = argparse.ArgumentParser(description="take a top-scores file, and \
