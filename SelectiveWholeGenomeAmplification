@@ -121,6 +121,12 @@ done
 : ${max_melting_temp=30}
 : ${min_melting_temp=0}
 
+# Concentrations of solution
+: ${dna_con=5000}
+: ${na_con=10}
+: ${mg_con=20}
+: ${dntps_con=10}
+
 # minimum average binding distance in the foreground
 : ${min_foreground_binding_average=50000}
 

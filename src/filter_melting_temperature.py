@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+import argparse
 import sys
+import math
 
 """Calculate the thermodynamic melting temperatures of nucleotide sequences."""
 
-import math
-def Tm_staluc(s, dnac=5000, na=10, mg=20, dNTPs=10):
+def Tm_staluc(s, dna=5000, na=10, mg=20, dntps=10):
 		"""Returns DNA/DNA tm using nearest neighbor thermodynamics.
 
 		dnac is DNA concentration [nM]
@@ -73,7 +74,7 @@ def Tm_staluc(s, dnac=5000, na=10, mg=20, dNTPs=10):
 		vsTC,vh = tercorr(sup)
 		vs = vsTC
 		
-		k = (dnac/4.0)*1e-9
+		k = (dna/4.0)*1e-9
 		#With complementary check on, the 4.0 should be changed to a variable.
 		
 		#DNA/DNA
@@ -102,10 +103,10 @@ def Tm_staluc(s, dnac=5000, na=10, mg=20, dNTPs=10):
 		tm = ((1000* (-dh))/(-ds+(R * (math.log(k)))))-273.15
 		Mmg = mg * 1E-3
 		Mna = na * 1E-3
-		Mdntp = dNTPs * 1E-3
+		Mdntp = dntps * 1E-3
 
-		Fmg = ((3E4 * Mdntp - 3E4 * Mmg + 1) + ((3E4 * Mdntp - 3E4 * Mmg + 1)**2 + 4 * 3E4 * Mmg)**0.5 )/ (2 * 3E4)
-		cationratio = - Fmg**0.5 / Mna
+		Fmg = (-(3E4 * Mdntp - 3E4 * Mmg + 1) + ((3E4 * Mdntp - 3E4 * Mmg + 1)**2 + 4 * 3E4 * Mmg )**0.5 )/ (2 * 3E4)
+		cationratio = Fmg**0.5 / Mna
 		
 		if cationratio < 0.22:
 			SaltCorrectedTm = 1 / ( (1 / tm) + ((4.29 * fgc(s) - 3.95) * math.log(Mna) + 0.940 * (math.log(Mna))**2) * 1E-5 )
@@ -141,11 +142,20 @@ def in_temp_range(kmer):
 
 	return min_melting_temp < melt_temp < max_melting_temp
 
-min_melting_temp = float(sys.argv[1])
-max_melting_temp = float(sys.argv[2])
 
 
 if __name__ == "__main__":
+
+	parser = argparse.ArgumentParser(description="Filter mers, input is stdin, output is stdout") 
+	parser.add_argument("-m", "--min", help="min melting temp [c]", required=True, type=float)
+	parser.add_argument("-x", "--max", help="max melting temp [c]", required=True, type=float)
+	parser.add_argument("-d", "--dna", help="DNA concentation [nM]", required=False, type=int, default=5000)
+	parser.add_argument("-n", "--na", help="sodium concentation [mM]", required=False, type=int, default=10)
+	parser.add_argument("-g", "--mg", help="magnesium concentation [mM]", required=False, type=int, default=20)
+	parser.add_argument("-p", "--dntp", help="dNTPs concentation [mM]", required=False, type=int, default=10)
+
+	ar = parser.parse_args()
+
 	for line in sys.stdin:
-		if min_melting_temp < Tm_staluc(line.split("\t")[0]) < max_melting_temp:
+		if ar.min < Tm_staluc(line.split("\t")[0], dna=ar.dna, na=ar.na, mg=ar.mg, dntps=ar.dntp) < ar.max:
 			sys.stdout.write(line)

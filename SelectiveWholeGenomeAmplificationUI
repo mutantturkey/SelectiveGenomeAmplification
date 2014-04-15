@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import os.path
+
 foreground = ""
 background = ""
 
@@ -7,57 +9,61 @@ yes_no = {'Y': True, 'y': True,'n': False, 'N': False, 'yes': True, 'no': False,
 variables = {}
 
 questions = [
-	{ 'question' : "Where would you like your output directory to be?", 
-	  'default_str': 'current directory/foreground_background/',
-	  'variable': 'output_directory' },
+	{ 'q' : "Where would you like your output directory to be?", 
+	  'def': 'current directory/foreground_background/',
+	  'v': 'output_directory' },
 
-	{'question': "Where would you like to temporary files to be stored?",
-	 'default_str': '$output_directory/.tmp',
-	 'variable': "temp_directory" },
+	{'q': "Where would you like to temporary files to be stored?",
+	 'def': '$output_directory/.tmp',
+	 'v': "temp_directory" },
 
-	{'question': "Where would you like to count files to be stored?",
-	 'default_str': '$output_directory/.tmp',
-	 'variable': "counts_directory" },
+	{'q': "Where would you like to count files to be stored?",
+	 'def': '$output_directory/.tmp',
+	 'v': "counts_directory" },
 
-	{ 'question': 'maximum mer size you would like to pick?',
-	  'default_str': '12',
-	  'variable': 'max_mer_range' },
+	{ 'q': 'maximum mer size you would like to pick?',
+	  'def': '12',
+	  'v': 'max_mer_range' },
 
-	{ 'question': 'minimum mer size you would like to pick?',
-	  'default_str': '6',
-	  'variable': 'min_mer_range' },
+	{ 'q': 'minimum mer size you would like to pick?',
+	  'def': '6',
+	  'v': 'min_mer_range' },
 
-	{ 'question': 'eliminate mers that appear less frequently on average than this number ?',
-	  'default_str': '50000',
-	  'variable': 'min_foreground_binding_average' },
+	{ 'q': 'eliminate mers that appear less frequently on average than this number ?',
+	  'def': '50000',
+	  'v': 'min_foreground_binding_average' },
 
-	{ 'question': 'maximum size of mer combinations you want to search and select?',
-	  'default_str': '15',
-	  'variable': 'max_select' },
+	{ 'q': 'maximum size of mer combinations you want to search and select?',
+	  'def': '15',
+	  'v': 'max_select' },
 
-	{ 'question': 'maximum number of mers you want to use as possible primers?',
-	  'default_str': '35',
-	  'variable': 'max_check' },
+	{ 'q': 'maximum number of mers you want to use as possible primers?',
+	  'def': '35',
+	  'v': 'max_check' },
 
-	{'question': 'enter mers to ignore? (space seperated)',
-	 'default_str': "None",
-	 'variable': 'ignore_mers'},
+	{'q': 'enter mers to ignore? (space seperated)',
+	 'def': "None",
+	 'v': 'ignore_mers'},
 
-	{'question': 'enter files to ignore all mers from? (space seperated)',
-	 'default_str': "None",
-	 'variable': 'ignore_all_mers_from_files'},
+	{'q': 'enter files to ignore all mers from? (space seperated)',
+	 'def': "None",
+	 'v': 'ignore_all_mers_from_files'},
 
-	{ 'question': 'maximum distance between mers in the final selection?',
-	  'default_str': "5000 bases",
-	  'variable': 'max_mer_distance' },
+	{ 'q': 'maximum distance between mers in the final selection?',
+	  'def': "5000 bases",
+	  'v': 'max_mer_distance' },
 
-	{ 'question': 'maximum melting temperature for mers?', 'default_str': '30c', 'variable': 'max_melting_temp' },
-	{ 'question': 'minimum melting temperature for mers?', 'default_str': '0c',  'variable': 'min_melting_temp' },
-	{ 'question': 'maximum number of consecutively binding mers in hetero and homodimers?', 'default_str': '4', 'variable': 'max_consecutive_binding' },
-	{ 'question': 'what extra weight do you want for highgly binding primers? (0-1)', 'default_str': '0', 'variable': 'fg_weight' },
-  { 'question': 'what extra weight do you want for sets with a higher number of primers? (0-1)', 'default_str': '0', 'variable': 'primer_weight'},
-	{ 'question': 'how many scored sets would you like in the top_scored_sets output file?', 'default_str':'10000', 'variable': 'output_top_nb'},
-	{ 'question': 'would you like to use a custom scoring function? see README.md for details', 'default_str':'', 'variable': 'score_func'}
+	{ 'q': 'maximum melting temperature for mers?', 'def': '30c', 'v': 'max_melting_temp' },
+	{ 'q': 'minimum melting temperature for mers?', 'def': '0c',  'v': 'min_melting_temp' },
+	{ 'q': 'DNA Concentration (nM)?', 'def': '5000nM',  'v': 'dna_con' },
+	{ 'q': 'Salt Concentration (mM) ?', 'def': '10mM',  'v': 'na_con' },
+	{ 'q': 'Magnesium Concentration (mM)?', 'def': '20mM',  'v': 'mg_con' },
+	{ 'q': 'dNTPs Concentration (mM) ?', 'def': '10mM',  'v': 'dntps_con' },
+	{ 'q': 'maximum number of consecutively binding mers in hetero and homodimers?', 'def': '4', 'v': 'max_consecutive_binding' },
+	{ 'q': 'what extra weight do you want for highgly binding primers? (0-1)', 'def': '0', 'v': 'fg_weight' },
+  { 'q': 'what extra weight do you want for sets with a higher number of primers? (0-1)', 'def': '0', 'v': 'primer_weight'},
+	{ 'q': 'how many scored sets would you like in the top_scored_sets output file?', 'def':'10000', 'v': 'output_top_nb'},
+	{ 'q': 'would you like to use a custom scoring function? see README.md for details', 'def':'', 'v': 'score_func'}
 ]
 
 def bool_ask(ask_string, default):
@@ -74,10 +80,10 @@ def bool_ask(ask_string, default):
 	return yes_no[ans]
 
 def ask(question_dict):
-	question = question_dict['question']
-	default_str = question_dict['default_str']
+	question = question_dict['q']
+	default = question_dict['def']
 
-	ask_string = question + " (Default=" + str(default_str) + ")" + ": "
+	ask_string = question + " (Default=" + str(default) + ")" + ": "
 
 	ans = raw_input(ask_string)
 	return ans 
@@ -100,6 +106,16 @@ def run(variables_as_a_string):
 	except:
 		pass
 
+def file_ask(query):
+	response = None
+	while response is None:
+		response = raw_input(query)
+		if os.path.isfile(response) is not True:
+			print "That file doesn't exist."
+			response = None
+
+	return response
+
 
 if(bool_ask("would you like to input all your variables at once?", "n")):
 	variables = raw_input("Please paste in your variables (space delimited) and Run:")
@@ -110,14 +126,14 @@ if(bool_ask("would you like to input all your variables at once?", "n")):
 else:
 	for q in questions:
 		if 'bool' in q:
-			res = ask_bool(q['question'], q['default'])
+			res = ask_bool(q['q'], q['def'])
 		else:
 			res = ask(q)
 
-		variables[q['variable']] = res 
+		variables[q['v']] = res 
 
-	foreground = raw_input("Input the path to your foreground file:")
-	background = raw_input("Input the path to your background file:")
+	foreground = file_ask("Input the path to your foreground file:")
+	foreground = file_ask("Input the path to your background file:")
 
 	if(bool_ask("Would you like to output your inserted variables to a string you can later paste?", "y")):
 		print variables_to_string(variables)
