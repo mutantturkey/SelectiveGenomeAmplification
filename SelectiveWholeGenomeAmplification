@@ -253,7 +253,7 @@ if [[ ! -d "$output_directory/$current_run/passes-filter" ]]; then
 fi
 
 echo "Outputting current run parameters"
-	for var in score_func ignore_mers ignore_all_mers_from_files min_mer_range max_mer_range max_check cpus max_consecutive_binding max_select min_foreground_binding_average max_mer_distance min_melting_temp max_melting_temp foreground background; do 
+	for var in score_func ignore_mers ignore_all_mers_from_files min_mer_range max_mer_range max_check cpus max_consecutive_binding max_select min_foreground_binding_average max_mer_distance min_melting_temp max_melting_temp dna_con na_con mg_con dntps_con foreground background; do 
 	echo "$var" "${!var}" >> "$output_directory"/"$current_run"/parameters
 done;
 
@@ -314,7 +314,7 @@ if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
 	check_non_empty "$average_binding" "average binding"
 
 	echo "  filtering mers that are not in the melting range ($min_melting_temp-$max_melting_temp)"
-	filter_melting_temperature.py "$min_melting_temp" "$max_melting_temp" < "$average_binding" > "$non_melting" || exit 1
+  filter_melting_temperature.py -m "$min_melting_temp" -x "$max_melting_temp" -d "$dna_con" -g "$mg_con" -n "$na_con" -p "$dntps_con" < "$average_binding" > "$non_melting" || exit 1
 	check_non_empty "$non_melting" "melting temperature"
 
 	echo "  filtering mers that have more consecutive binding mers than allowed ($max_consecutive_binding)"
