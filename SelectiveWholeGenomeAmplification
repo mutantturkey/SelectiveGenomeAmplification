@@ -31,7 +31,7 @@ check_mers() {
 	for (( mer = min_mer_range; mer <= max_mer_range; mer++)) ; do 
 		if [[ ! -e "$counts"-counts-"$mer" ]]; then
 			echo "    checking $mer mers for $fasta_file"
-			kmer_continuous_count -c -i "$fasta_file" -k "$mer" -l -n > "$counts"-counts-"$mer" || exit 1
+			kmer_total_count -c -i "$fasta_file" -k "$mer" -l -n > "$counts"-counts-"$mer" || exit 1
 		else 
 			echo "    $mer-mers already done for $fasta_file (assuming no change)"
 		fi
