@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 import sys
 import os
 
@@ -99,7 +99,6 @@ def populate_locations(mers, mer_dic, input_fn, length):
 		_, merlist_fn = tempfile.mkstemp()
 		merlist_fh = open(merlist_fn, 'w')
 		for mer in n_mers:
-			print mer
 			merlist_fh.write(mer + '\n')
 
 		merlist_fh.flush()
