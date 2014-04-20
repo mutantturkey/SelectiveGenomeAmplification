@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 lock() {
 
 	if [[ -f "$1" ]]; then
