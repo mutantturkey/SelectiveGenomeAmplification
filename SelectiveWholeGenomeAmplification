@@ -185,12 +185,12 @@ export primer_weight
 echo
 # check foreground and background
 if [[ ! -f "$foreground" ]]; then
-	echo "Error: could not open $foreground"
+	echo "Error: could not open foreground: $foreground"
 	exit 1
 fi
 
 if [[ ! -f "$background" ]]; then
-	echo "Error: could not open $background"
+	echo "Error: could not open background: $background"
 	exit 1
 fi
 
