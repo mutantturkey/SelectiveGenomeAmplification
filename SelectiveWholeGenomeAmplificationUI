@@ -133,7 +133,7 @@ else:
 		variables[q['v']] = res 
 
 	foreground = file_ask("Input the path to your foreground file:")
-	foreground = file_ask("Input the path to your background file:")
+	background = file_ask("Input the path to your background file:")
 
 	if(bool_ask("Would you like to output your inserted variables to a string you can later paste?", "y")):
 		print variables_to_string(variables)
