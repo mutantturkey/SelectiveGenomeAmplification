@@ -37,6 +37,9 @@ PI: http://brisson.bio.upenn.edu/
 To use this you'll need:
 
  - A Unix environment
+ 	- GNU/Linux works out of the box. Debian + SUSE tested.
+	- Cygwin has been tested. gcc and python are required, might need to run rebasall
+	- OS/X support. not yet!	
  - [dna-utils](http://github.com/mutantturkey/dna-utils/)
  - bash or compliant shell.
  - python 2.7.x
