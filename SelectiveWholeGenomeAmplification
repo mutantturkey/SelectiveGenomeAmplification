@@ -49,7 +49,8 @@ check_mers() {
 	rmdir $tmp_directory/counts-lock
 }
 
-all=run
+all=1
+
 # Parse in our arguments
 if [[ -z "$foreground" ]] && [[ -z "$background" ]]; then 
 	if (( $# < 2 )); then  
@@ -64,7 +65,12 @@ else
 	start=1
 fi
 
-if (( $# > 2 )); then
+if [[ -n "$step_mers" ]] || [[ -n "$step_filters" ]] || [[ -n "$step_select" ]] || [[ -n "$step_score" ]]; then
+	echo "unset all"
+	unset all
+fi
+
+if (( $# != 0 )); then
 	unset all
 
 	for i in "${@:$start}"; do 
