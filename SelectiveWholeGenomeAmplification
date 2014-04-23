@@ -66,12 +66,10 @@ else
 fi
 
 if [[ -n "$step_mers" ]] || [[ -n "$step_filters" ]] || [[ -n "$step_select" ]] || [[ -n "$step_score" ]]; then
-	echo "unset all"
 	unset all
 fi
 
 if (( $# != 0 )); then
-	unset all
 
 	for i in "${@:$start}"; do 
 		if [[ "$i" = "1" ]] || [[ "$i" = "count" ]]; then
@@ -95,6 +93,10 @@ if (( $# != 0 )); then
 			"at the first step, you better specify what previous run you want to use" \
 			"as your base"
 			exit
+		fi
+		
+		if [[ -n $step ]]; then
+			unset all
 		fi
 
 		done;
