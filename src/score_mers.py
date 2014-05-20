@@ -251,7 +251,7 @@ def score_specific_combinations(mers):
 	fh = open(output_file, 'wb')
 	write_header(fh)
 	
-	score_it = p.map(score, mers)
+	score_it = p.map(score_no_check, mers)
 	for score_res in score_it:
 		if type(score_res) is list:
 			total_scored += 1
@@ -362,6 +362,48 @@ def score(combination):
 	exec score_func
 
 	return [combination, mer_score, fg_mean_dist, fg_std_dist, bg_ratio] 
+
+def score_no_check(combination):
+	# input is a string of mers like 
+	# ['ACCAA', 'ACCCGA', 'ACGTATA']
+
+	# fg points
+	fg_pts = []
+	fg_dist = []
+
+	for mer in combination:
+		fg_pts = fg_pts + fg_mers[mer]
+
+	fg_pts = fg_pts + seq_ends 
+
+	fg_pts.sort()
+
+	if fg_pts[0] is not 0:
+		fg_pts = [0] + fg_pts
+
+	# fg distances
+	fg_dist = np.diff(fg_pts)
+
+	# bg counts 
+	bg_counts = 0
+
+	for mer in combination:
+		bg_counts += bg_mers[mer]
+
+	if bg_counts <= 1:
+		bg_counts = 1 
+
+	bg_ratio = (bg_genome_length / bg_counts)
+
+	nb_primers = len(combination)
+	fg_mean_dist = np.mean(fg_dist)
+	fg_std_dist = np.std(fg_dist)
+
+	# this is our equation
+	exec score_func
+
+	return [combination, mer_score, fg_mean_dist, fg_std_dist, bg_ratio] 
+
 
 
 def initialize_mers(foreground, background, load_background=True):
