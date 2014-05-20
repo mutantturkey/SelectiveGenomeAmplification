@@ -204,6 +204,8 @@ def percentage(part, whole, precision=2):
 
 	part = float(part)
 	whole = float(whole)
+	if whole == 0:
+		return '0.0%'
 
 	percent = round(part / whole * 100, precision)
 	if(percent < 10):
