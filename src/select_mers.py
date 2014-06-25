@@ -28,7 +28,7 @@ def main():
 	# copy in our foreground mers and counts into mers dictionary
 	for line in fg_count_fh:
 		(mer, count) = line.split()
-		mers[mer] = [float(count), 1]
+		mers[mer] = [float(count), 1.0]
 	
 	
 	for line in bg_count_fh:
