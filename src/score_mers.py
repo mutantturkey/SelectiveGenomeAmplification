@@ -487,6 +487,8 @@ def main():
 
 		# load it into our fg and bg counts into their dictionaries
 		for mer in selected_mers:
+			if mer.startswith("#"):
+				continue
 			split_mer = mer.split()
 			fg_mers[split_mer[0]] = []
 			bg_mers[split_mer[0]] = int(split_mer[2])
@@ -494,7 +496,7 @@ def main():
 		selected_mers = [x.split()[0] for x in selected_mers]
 
 		if len(selected_mers) is 0:
-			print "no merss found."
+			print "no mers found."
 			exit(1)
 
 		# we already have our background counts
@@ -511,6 +513,8 @@ def main():
 
 		combination_fh = open(args.combination_file, "r")
 		for line in combination_fh:
+			if line.startswith("#"):
+				continue
 			mers = line.split()
 			combinations.append(mers)
 			for mer in mers:
@@ -529,6 +533,8 @@ def main():
 
 		mer_fh = open(args.mer_file, "r")
 		for mer in mer_fh:
+			if mer.startswith("#"):
+				continue
 			mer = mer.strip()
 			if(len(mer.split()) > 1):
 				print "skipping line:", mer, "each line should contain only one mer"
