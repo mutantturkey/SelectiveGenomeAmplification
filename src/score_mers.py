@@ -13,7 +13,6 @@ from subprocess import PIPE
 from itertools  import combinations
 
 import numpy as np
-import pdb
 
 fg_mers = {}
 bg_mers = {}
@@ -481,14 +480,16 @@ def main():
 	
 		# load our mer list into python
 		mer_selectivity = selectivity_fh.readlines()
+		mer_selectivity = [ x for x in mer_selectivity if not x.startswith('#')]
 
 		# get the last max_check (it's sorted)
-		selected_mers = mer_selectivity[-max_check:]
+		if len(mer_selectivity) > max_check:
+			selected_mers = mer_selectivity[-max_check:]
+		else:
+			selected_mers = mer_selectivity
 
 		# load it into our fg and bg counts into their dictionaries
 		for mer in selected_mers:
-			if mer.startswith("#"):
-				continue
 			split_mer = mer.split()
 			fg_mers[split_mer[0]] = []
 			bg_mers[split_mer[0]] = int(split_mer[2])
