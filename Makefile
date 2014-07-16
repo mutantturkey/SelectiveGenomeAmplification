@@ -7,6 +7,7 @@ all: output_dir bin/strstream bin/filter_melting_range bin/strstreamone bin/sequ
 
 output_dir: 
 	mkdir -p bin
+
 bin/strstream: src/strstream.c
 	$(CC) src/strstream.c -o bin/strstream $(CLIBS) $(CFLAGS)
 bin/strstreamone: src/strstreamone.c
@@ -36,4 +37,5 @@ install: all
 	install -c src/filter_melting_temperature.py $(DEST)
 	install -c src/filter_max_consecutive_binding.py $(DEST)
 	install -c src/filter_average_binding.py $(DEST)
-
+	install -c src/remove_mers.py $(DEST)
+	install -c src/remove_mers_from_file.py $(DEST)

@@ -7,9 +7,9 @@ lock() {
 	fi
 
 	if mkdir "$1" &>/dev/null;  then
-		echo "lock $1 created" >&2
+		echo "   lock $1 created" >&2
 	else
-		echo "lock $1 found, waiting for unlock" >&2
+		echo "   lock $1 found, waiting for unlock" >&2
 		while true; do
 			sleep 2;
 			if mkdir "$1" &>/dev/null; then

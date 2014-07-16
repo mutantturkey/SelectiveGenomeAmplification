@@ -9,6 +9,9 @@ exit_handler() {
 	exit 1
 }
 
+arg() {
+		echo -e "\e[32m$@\e[39m"
+}
 # check_non_empty
 check_non_empty() {
 	if [[ ! -s $1 ]]; then
@@ -24,11 +27,12 @@ check_mers() {
 	local counts="$2"
 	local mer=0
 
-	echo "  counting mers in $fasta_file"
+	echo "  counting mers in $fasta_file:e"
+	echo -e "\e[32m"
 
 	#  remove the counts file so we can concatenate
 	if [[ -e "$counts"-counts ]]; then
-		echo "    removing $counts-counts"
+		echo "   removing $counts-counts"
 		rm "$counts"-counts
 	fi
 
@@ -36,15 +40,16 @@ check_mers() {
 	lock $tmp_directory/counts-lock
 	for (( mer = min_mer_range; mer <= max_mer_range; mer++)) ; do 
 		if [[ ! -e "$counts"-counts-"$mer" ]]; then
-			echo "    checking $mer mers for $fasta_file"
+			echo "   checking $mer mers for $fasta_file"
 			kmer_total_count -c -i "$fasta_file" -k "$mer" -l -n > "$counts"-counts-"$mer" || exit_handler
 		else 
-			echo "    $mer-mers already done for $fasta_file (assuming no change)"
+			echo "   $mer-mers already done for $fasta_file (assuming no change)"
 		fi
 		
 		# concatentate 
 		cat "$counts"-counts-"$mer" >> "$counts"-counts
 
+	echo -e "\e[39m"
 	done
 	rmdir $tmp_directory/counts-lock
 }
@@ -290,31 +295,32 @@ if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
 	echo "Step 2: filtering mers"
 
 
-	cp "$fg_counts" "$ignore_mers_counts"
 	# remove ignored mers
 	if [[ "$ignore_mers" ]]; then
 		echo "  filtering explicitly ignored mers: $ignore_mers"
-		for mer in $ignore_mers; do
-			sed -i '/^'"$mer"'\t/d' "$ignore_mers_counts"
-		done
+		cat "$fg_counts" | remove_mers.py $ignore_mers > "$ignore_mers_counts"
+	else
+		cp "$fg_counts" "$ignore_mers_counts"
 	fi
+
 	check_non_empty "$ignore_mers_counts" "ignore mers" 
 
+	# create full ignore_all_counts
 	cp "$ignore_mers_counts" "$ignore_all_mers_counts"
 	# remove ignored mers
 	if [[ "$ignore_all_mers_from_files" ]]; then
 		for ignore_file in $ignore_all_mers_from_files; do
-
 			if [[ -f "$ignore_file" ]]; then 
-				echo "  filtering ignored mers from: $ignore_file"
 
+				# check mers from next ignore file
 				counts="$counts_directory/ignore-"$(basename "$ignore_file")
 				check_mers "$ignore_file" "$counts"
 
-				while read mer_line; do
-						mer=$(echo "$mer_line" | sed -e 's/\t.*//g')
-						sed -i '/^'"$mer"'\t/d' "$ignore_all_mers_counts"
-					done < "$counts-counts"
+				echo "  filtering ignored mers from: $ignore_file"
+				cat "$ignore_all_mers_counts" | remove_mers_from_file.py "$ignore_file"> "$ignore_all_mers_counts-tmp"
+				mv "$ignore_all_mers_counts-tmp" "$ignore_all_mers_counts"
+				read
+				check_non_empty "$ignore_all_mers_counts" "ignore all mers from file $ignore_file"
 			else 
 				echo "  $ignore_file not found, continuing..."
 			fi
