@@ -8,9 +8,12 @@ if __name__ == "__main__":
 	
 	mers_to_delete = set()
 
-	for mer in open(sys.argv[1], 'r'):
-		mer = mer.strip().split()[0]
-		mers_to_delete.add(mer)
+	for mer in open(sys.argv[1], 'rU'):
+		sp = mer.strip().split()
+		if len(sp) == 2:
+			mer = sp[0]
+			mers_to_delete.add(mer)
+
 
 	for line in sys.stdin:
 		if line.split()[0] not in mers_to_delete:

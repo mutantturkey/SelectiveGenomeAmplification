@@ -27,7 +27,7 @@ check_mers() {
 	local counts="$2"
 	local mer=0
 
-	echo "  counting mers in $fasta_file:e"
+	echo "  counting mers in $fasta_file:"
 	echo -e "\e[32m"
 
 	#  remove the counts file so we can concatenate
@@ -315,11 +315,11 @@ if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
 				# check mers from next ignore file
 				counts="$counts_directory/ignore-"$(basename "$ignore_file")
 				check_mers "$ignore_file" "$counts"
+				counts="$counts-counts"
 
 				echo "  filtering ignored mers from: $ignore_file"
-				cat "$ignore_all_mers_counts" | remove_mers_from_file.py "$ignore_file"> "$ignore_all_mers_counts-tmp"
+				cat "$ignore_all_mers_counts" | remove_mers_from_file.py "$counts"> "$ignore_all_mers_counts-tmp"
 				mv "$ignore_all_mers_counts-tmp" "$ignore_all_mers_counts"
-				read
 				check_non_empty "$ignore_all_mers_counts" "ignore all mers from file $ignore_file"
 			else 
 				echo "  $ignore_file not found, continuing..."
