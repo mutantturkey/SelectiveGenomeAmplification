@@ -32,6 +32,7 @@ debug            = os.environ.get("debug", False)
 max_select       = int(os.environ.get("max_select", 15))
 max_check        = int(os.environ.get("max_check", 35))
 max_mer_distance = int(os.environ.get("max_mer_distance", 5000))
+min_bg_ratio     = int(os.environ.get("min_bg_ratio", 0))
 max_consecutive_binding = int(os.environ.get("max_consecutive_binding", 4))
 primer_weight = float(os.environ.get("primer_weight", 0))
 score_str = os.environ.get("score_func", None)
@@ -233,6 +234,7 @@ def print_rejected(total_reject, total_checked, total_scored, excluded):
 	print "  max distance: " + percentage(excluded[0], total_reject) + " (" + str(excluded[0]) + ")"
 	print "  mers overlap: " + percentage(excluded[1], total_reject) + " (" + str(excluded[1]) + ")"
 	print "  heterodimers: " + percentage(excluded[2], total_reject) + " (" + str(excluded[2]) + ")"
+	print "  min bg ratio: " + percentage(excluded[3], total_reject) + " (" + str(excluded[3]) + ")"
 	print ""
 	print "  total combinations checked: ", total_checked
 	print "  total combinations scored:  ", total_scored
@@ -243,7 +245,7 @@ def score_specific_combinations(mers):
 
 	total_scored = 0
 	total_checked = 0
-	excluded = [0, 0, 0]
+	excluded = [0, 0, 0, 0]
 
 	p = Pool(cpus)
 
@@ -352,6 +354,8 @@ def score(combination):
 
 	bg_ratio = (bg_genome_length / bg_counts)
 
+	if(bg_ratio < min_bg_ratio)
+		return 3
 
 	nb_primers = len(combination)
 	fg_mean_dist = np.mean(fg_dist)

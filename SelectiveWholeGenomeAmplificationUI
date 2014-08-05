@@ -53,6 +53,10 @@ questions = [
 	  'def': "5000 bases",
 	  'v': 'max_mer_distance' },
 
+	{ 'q': 'minimum background ratio?',
+	  'def': "None",
+	  'v': 'min_bg_ratio' },
+
 	{ 'q': 'maximum melting temperature for mers?', 'def': '30c', 'v': 'max_melting_temp' },
 	{ 'q': 'minimum melting temperature for mers?', 'def': '0c',  'v': 'min_melting_temp' },
 	{ 'q': 'DNA Concentration (nM)?', 'def': '5000nM',  'v': 'dna_con' },

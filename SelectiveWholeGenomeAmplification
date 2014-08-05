@@ -179,6 +179,9 @@ done
 # sort score by the minimum or maximum value. acceptable parameters are min or max.
 : ${sort_by="min"}
 
+# bg_ratio
+: ${min_bg_ratio=0}
+
 export ignore_mers
 export min_mer_range
 export max_mer_range
@@ -194,8 +197,6 @@ export min_melting_temp
 export fg_weight
 export primer_weight
 
-
-echo
 # check foreground and background
 if [[ ! -f "$foreground" ]]; then
 	echo "Error: could not open foreground: $foreground"

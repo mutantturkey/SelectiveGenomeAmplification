@@ -164,6 +164,7 @@ max\_mer\_distance | 5000 | maximum distance between mers in foreground
 min\_melting\_temp | 0° | minimum melting temp of mers
 max\_melting\_temp | 30° | maximum melting temp of mers
 min\_foreground\_binding\_average | 50000 | eliminate mers that appear less frequently than the average  (length of foreground / # of occurrances)
+min\_bg\_ratio | Not Enabled | eliminate mers where the background ration is less than the minimum
 ignore\_mers | Not Enabled | mers to explicitly ignore, space separated ex. ignore\_mers="ACAGTA ACCATAA ATATATAT"
 ignore\_all\_mers\_from\_files | Not Enabled | ignore any mers found in these files. space separated.
 output\_directory | $foreground\_$background/ | ex. if fg is Bacillus.fasta and  bg is HumanGenome.fasta then folder would be $PWD/Bacillus.fasta\_HumanGenome\_output.fasta/
