@@ -182,6 +182,9 @@ done
 # bg_ratio
 : ${min_bg_ratio=0}
 
+# max_bg_mers
+: ${max_bg_mers=-1}
+
 export ignore_mers
 export min_mer_range
 export max_mer_range
@@ -246,6 +249,7 @@ ignore_all_mers_counts="$output_directory/$current_run/passes-filter/2-$fg_basen
 average_binding="$output_directory/$current_run/passes-filter/3-$fg_basename-average-binding"
 non_melting="$output_directory/$current_run/passes-filter/4-$fg_basename-non-melting"
 consecutive_binding="$output_directory/$current_run/passes-filter/5-$fg_basename-consecutive-binding"
+bg_filtered="$output_directory/$current_run/passes-filter/6-$fg_basename-bg-filtered"
 
 # Make our output directory
 if [[ ! -d "$output_directory" ]]; then
@@ -342,7 +346,11 @@ if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
 	filter_max_consecutive_binding.py "$max_consecutive_binding" < "$non_melting" > "$consecutive_binding" || exit 1
 	check_non_empty "$consecutive_binding" "consecutive binding"
 
-	cp $consecutive_binding $final_fg_counts
+	echo "  filtering mers that have more bg mers than allowed ($max_bg_mers)"
+	filter_max_bg_mers.py "$max_bg_mers" "$bg_counts" < "$consecutive_binding" > "$bg_filtered" || exit 1
+	check_non_empty "$bg_filtered" "background filtered"
+
+	cp $bg_filtered $final_fg_counts
 fi
 
 if [[ -n "$step_select" ]] || [[ -n "$all" ]]; then
