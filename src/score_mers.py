@@ -354,7 +354,7 @@ def score(combination):
 
 	bg_ratio = (bg_genome_length / bg_counts)
 
-	if(bg_ratio < min_bg_ratio)
+	if bg_ratio < min_bg_ratio:
 		return 3
 
 	nb_primers = len(combination)
