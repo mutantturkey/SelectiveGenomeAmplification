@@ -335,7 +335,7 @@ if [[ -n "$step_filters" ]] || [[ -n "$all" ]]; then
 	check_non_empty "$ignore_all_mers_counts" "ignore all mers from file "
 	
 	echo "  filtering mers that appear less frequently than the average binding site distance ($min_foreground_binding_average)"
-	filter_average_binding.py "$ignore_all_mers_counts" "$min_foreground_binding_average" < "$fg_counts"  > "$average_binding" || exit 1
+	filter_average_binding.py --fasta "$foreground" --minimum "$min_foreground_binding_average" --counts "$ignore_all_mers_counts"  > "$average_binding" || exit 1
 	check_non_empty "$average_binding" "average binding"
 
 	echo "  filtering mers that are not in the melting range ($min_melting_temp-$max_melting_temp)"
