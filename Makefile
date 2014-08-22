@@ -36,6 +36,7 @@ install: all
 	install -c src/score_wrapper.sh $(DEST)
 	install -c src/filter_melting_temperature.py $(DEST)
 	install -c src/filter_max_consecutive_binding.py $(DEST)
+	install -c src/filter_max_bg_mers.py $(DEST)
 	install -c src/filter_average_binding.py $(DEST)
 	install -c src/remove_mers.py $(DEST)
 	install -c src/remove_mers_from_file.py $(DEST)
